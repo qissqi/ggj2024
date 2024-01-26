@@ -114,21 +114,21 @@
             class="card-effect-table" >
             <tr>
               <td class="card-effect">
-                <span>🎓 + ?</span>
+                <span>🎓 +?</span>
                 <div class="card-effect-bkgd-none"><br></div>
               </td>
               <td class="card-effect">
-                <span>😆 + ?</span>
+                <span>😆 +?</span>
                 <div class="card-effect-bkgd-none"><br></div>
               </td>
             </tr>
             <tr>
               <td class="card-effect">
-                <span>💪 + ?</span>
+                <span>💪 +?</span>
                 <div class="card-effect-bkgd-none"><br></div>
               </td>
               <td class="card-effect">
-                <span>💰 + ?</span>
+                <span>💰 +?</span>
                 <div class="card-effect-bkgd-none"><br></div>
               </td>
             </tr>
@@ -170,7 +170,7 @@
     data() {
       return {
         character_portrait: {
-          url: ""
+          url: "../static/img/直播1.png"
         },
         output: {
           text_area: null,
@@ -202,10 +202,6 @@
         },
         action_count: 1,
 
-        CARD_TYPE: {
-          random: 1,
-          normal: 0,
-        },
         CARD_USAGE_STATUS: {
           usable   : 0,
           unusable : 1,
@@ -213,74 +209,7 @@
           random   : 3,  /* 未翻开的随机事件卡牌 */
         },
 
-        card_group: [
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "知识学爆",
-            effect: {
-              knowledge: 1, mood:  1,
-              energy:   -1, money: 0,
-            },
-            description: "万般皆下品，唯有读书高",
-            usage_status: 0
-          },
-          
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "知识学爆",
-            effect: {
-              knowledge: 1, mood:  1,
-              energy:   -1, money: 0,
-            },
-            description: "万般皆下品，唯有读书高",
-            usage_status: 1
-          },
-
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "知识学爆",
-            effect: {
-              knowledge: 1, mood:  1,
-              energy:   -1, money: 0,
-            },
-            description: "万般皆下品，唯有读书高",
-            usage_status: 2
-          },
-
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "知识学爆",
-            effect: {
-              knowledge:-1, mood:  1,
-              energy:   -1, money: 10,
-            },
-            description: "万般皆下品，唯有读书高",
-            usage_status: 0
-          },
-
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "知识学爆",
-            effect: {
-              knowledge: 1, mood:  1,
-              energy:    1, money: 0,
-            },
-            description: "万般皆下品，唯有读书高",
-            usage_status: 1
-          },
-
-          {
-            img_src: "../static/img/card_learn_1.png",
-            name: "随机事件",
-            effect: {
-              knowledge: 1, mood:  1,
-              energy:   -1, money: 0,
-            },
-            description: "随机事件",
-            usage_status: 3
-          },
-        ]
-        ,
+        card_group: [],
         gm:this.getGM()
         
       };
@@ -292,6 +221,11 @@
     },
 
     methods: {
+      /* 设置角色立绘 */
+      set_character_portrait(img_url) {
+        this.character_portrait.url = img_url;
+      },
+
       /* 选择播放音乐 */
       select_music() {
         this.print("已选择播放音乐：" + gm.music_selected.name);
@@ -350,7 +284,7 @@
       
       /* 数字转字符串，带有符号 */
       num_to_str_with_sign(num) {
-        return `${(num >= 0) ? '+' : '-'} ${Math.abs(num)}`;
+        return `${(num >= 0) ? '+' : '-'}${Math.abs(num)}`;
       },
 
       /* 点击卡牌 */

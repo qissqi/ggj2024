@@ -15,22 +15,20 @@ body {
   background-color: #fff;
   width: 85%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
   
   font-family: "黑体";
   color: #ff0000;
   font-size: var(--font-size);
 }
 
-#top-section                    { flex: 4; display: flex; }
-#bottom-section                 { flex: 3; }
-#top-left-section               { flex: 7; }
-#top-right-section              { flex: 8; display: flex; flex-direction: column; }
-#top-right-top-section          { flex: 7; display: flex; flex-direction: column; }
-#top-right-bottom-section       { flex: 1; display: flex; }
-#top-right-bottom-left-section  { flex: 5; }
-#top-right-bottom-right-section { flex: 4; }
+#top-section                    { height: 50%; display: flex; }
+#bottom-section                 { height: 50%; }
+#top-left-section               { width: 40%; }
+#top-right-section              { width: 60%; }
+#top-right-top-section          { height: 55%; display: flex; }
+#top-right-bottom-section       { height: 45%; display: flex; }
+#top-right-bottom-left-section  { width: 60%; }
+#top-right-bottom-right-section { width: 40%; }
 #top-section,
 #bottom-section,
 #top-left-section,
@@ -45,10 +43,11 @@ body {
 #character_portrait {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 #output-text-area {
-  background-color: transparent;
+  width: 100%;
   height: 100%;
   resize: none;
   border: none;
@@ -141,7 +140,7 @@ body {
   margin-left: 7px;
   margin-right: 7px;
   padding: 2px;
-  outline: 2px solid #000;
+  outline: 1.5px solid #000;
   transition: transform 0.18s ease;
 }
 
@@ -214,7 +213,7 @@ body {
 #card-group .card .card-effect-table .card-effect-bkgd-down {
   position: absolute;
   left: 0;   bottom: 0;
-  width: 20px; height: 100%;
+  width: 12px; height: 100%;
   z-index: 1;
 }
 #card-group .card .card-effect-table .card-effect span {
@@ -238,7 +237,7 @@ body {
 }
 
 #card-group .card .card-effect-table .card-effect span {
-  padding-left: 20px;
+  padding-left: 12px;
   font-size: 0.9em;
 }
 
