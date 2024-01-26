@@ -13,6 +13,7 @@ class Player {
     this.maxMood = 20;
     this.maxKnowledge = 100;
     this.maxHealth = 100;
+    this.maxActionPoint = 4;
   }
 
 }
@@ -20,6 +21,8 @@ class Player {
 // 卡牌
 class Card {
   keep = false
+  used = false
+  isStatic = false
 
   constructor(name,desc="",img="", energy=[0], mood=[0], health=[0], money=[0],knowledge=[0]) {
     this.name = name;
@@ -104,7 +107,7 @@ class Card_Music extends Card {
 class Card_Phone extends Card {
   cardEffect(gm){
     this.openWeb()
-    if(Math.random() < 0.7){
+    if(Math.random() < 0.1){
       var nc = gm.normalCards()
       return nc[Math.floor(Math.random() * (nc.length-1) + 1)]
     }
@@ -114,11 +117,11 @@ class Card_Phone extends Card {
   }
 
   openWeb(){
-    webs = [
-      "https://www.agedm.org/",
+    var webs = [
+      "https://www.bilibili.com/video/BV1GJ411x7h7",
       "https://ys.mihoyo.com/main/",
     ]
-    web = webs[Math.floor(Math.random() * webs.length)]
+    var web = webs[Math.floor(Math.random() * webs.length)]
 
     window.open(web, '_blank');
   }
@@ -163,6 +166,7 @@ class Card_Agent extends Card {
 
 
 class Game_Manager {
+  endingDay =false
   keepCard = null
   myCards = []
   player = new Player(10, 10, 100, 1000,0)
@@ -185,12 +189,12 @@ class Game_Manager {
   
   //单次卡牌
   card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[1000])}
-  card_weibo (){return new Card_Weibo("微博之夜","丁真在微博之夜上上下下","",[-3],[-3],[0],[1000])}
-  card_musicFestival (){return new Card_MusicFestival("亚洲音乐盛典","","",[-3],[-3],[0],[1000])}
-  card_signRecord (){return new Card_SignRecord("签约唱片公司","理塘王子","")}
-  card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","")}
+  card_weibo (){return new Card_Weibo("微博之夜","丁真在微博之夜上上下下","../static/img/微博之夜.png",[-3],[-3],[0],[1000])}
+  card_musicFestival (){return new Card_MusicFestival("亚洲音乐盛典","","../static/img/音乐盛典.png",[-3],[-3],[0],[1000])}
+  card_signRecord (){return new Card_SignRecord("签约唱片公司","理塘王子","../static/dz_test.jpeg")}
+  card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/电子烟.png")}
   
-  normalCards (){return [this.card_phone(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
+  normalCards (){return [this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
   specialCards (){
     var cards = [this.card_stream()]
     if(this.signed)
@@ -210,7 +214,8 @@ class Game_Manager {
   }
 
   newDay(){
-    this.player.actionPoint=4
+    this.endingDay=false
+    this.player.actionPoint=this.player.maxActionPoint
     this.days ++ 
     console.log(`第${this.days}天`)
     this.myCards = this.getCards(5)
@@ -219,32 +224,56 @@ class Game_Manager {
   
   checkCardAvailable(index) {
     var card = this.myCards[index]
+    if(card.keep && card.isStatic)
+      return false
+    if(card.keep && !card.isStatic)
+      return true
     if(this.player.actionPoint<=0)
       return false
 
-    if(this.player.energy < card.renergy)
+    if(this.player.energy + card.renergy<0)
       return false
-    if(this.player.mood < card.rmood)
+    if(this.player.mood + card.rmood<0)
       return false
-    if(this.player.money < card.rmoney)
+    if(this.player.money + card.rmoney<0)
       return false
 
     return this.myCards[index].checkAvailable(this)
   }
   
   useCard(index) {
+    if(this.myCards[index].used && !this.myCards[index].keep ){
+      console.log("卡牌已用过")
+      return
+    }
     if(!this.checkCardAvailable(index)){
       console.log("卡牌不可用")
       return
     }
+    if(!this.myCards[index].keep)
+      this.player.actionPoint --
     var c = this.myCards[index].use(this)
-    this.myCards[index] = c;
-    this.player.actionPoint --
+    if(c!=null){
+      this.myCards[index] = c
+    }
+    else{
+      this.myCards[index].used = true
+    }
     console.log(this.myCards)
   }
 
   getCards(nums){
-    var cards = [this.card_learn()]
+    var cards = []
+    if(this.myCards[0] == null || this.myCards[0].used){
+      var c =this.card_learn()
+      c.isStatic = true
+      cards = [c]
+    }
+    else{
+      this.myCards[0].keep = false
+      cards = [this.myCards[0]]
+    }
+
     for (let i = 0; i < nums; i++) {
       var ncards = this.normalCards()
       var randomIndex = Math.floor(Math.random() * ncards.length);
@@ -255,7 +284,8 @@ class Game_Manager {
 
   getSpecialCard(){
     var cards = this.specialCards()
-    var randomIndex = Math.floor(Math.random() * cards.length + this.specialCardsOnce.length);
+    var randomIndex = Math.floor(Math.random() * (cards.length + this.specialCardsOnce.length));
+    console.log(randomIndex,this.specialCardsOnce.length)
     if(randomIndex < this.specialCardsOnce.length){
       var card = this.specialCardsOnce[randomIndex]
       this.specialCardsOnce.splice(randomIndex, 1)
@@ -268,22 +298,32 @@ class Game_Manager {
 
 
   endDay(){
-    var leftCards = this.myCards.slice(1, 6).filter(c=>c!=null)
-    console.log("leftCards", leftCards)
+    if(this.endingDay){
+      this.keepCard=null
+      this.newDay()
+      return
+    }
+    var leftCards = this.myCards.filter(c=>!c.used)
+    
     if(leftCards.length == 0)
     {
       this.keepCard = null
       this.newDay()
+      return true
     }
     else if(leftCards.length == 1)
     {
       this.keepCard = leftCards[0]
       this.newDay()
+      return true
     }
 
     leftCards.forEach(c => {
       c.keep=true
     });
+    console.log("leftCards", leftCards)
+    this.endingDay= true
+    return false
   }
 
   playAudio(url){

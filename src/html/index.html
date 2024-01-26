@@ -29,41 +29,41 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ status.knowledge.val }} / {{ status.knowledge.max }}</span></td>
+                <td class="status-value"><span>{{ gm.player.knowledge }} / {{ gm.player.maxKnowledge }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(status.knowledge)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(gm.player.knowledge,gm.player.maxKnowledge)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ status.mood.val }} / {{ status.mood.max }}</span></td>
+                <td class="status-value"><span>{{ gm.player.mood }} / {{ gm.player.maxMood }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(status.mood)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(gm.player.mood,gm.player.maxMood)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ status.energy.val }} / {{ status.energy.max }}</span></td>
+                <td class="status-value"><span>{{ gm.player.energy }} / {{ gm.player.maxEnergy }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(status.energy)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(gm.player.energy,gm.player.maxEnergy)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💰</span></td>
                 <td class="status-name"><span>资产</span></td>
-                <td class="status-value" colspan="4"><span>{{ status.money.val }} </span></td>
+                <td class="status-value" colspan="4"><span>{{ gm.player.money }} </span></td>
               </tr>
             </table>
             <table class="status-table">
               <tr>
                 <td class="status-emoji"><span>🎲</span></td>
                 <td class="status-name"><span>行动</span></td>
-                <td class="status-value"><span>{{ status.action.val }} / {{ status.action.max }}</span></td>
+                <td class="status-value"><span>{{ gm.player.actionPoint }} / {{ gm.player.maxActionPoint }}</span></td>
                 <td class="status-emoji"><span>🗓️</span></td>
                 <td class="status-name"><span>天数</span></td>
-                <td class="status-value"><span>{{ status.day }}</span></td>
+                <td class="status-value"><span>{{ gm.days }}</span></td>
                 <td class="empty"><br></td>
               </tr>
             </table>
@@ -75,6 +75,7 @@
 
               
               <button @click='print("1")'>测试</button>
+              <button @click='nextDay()'>下一天</button>
             </div>
           </div>
 
@@ -85,41 +86,41 @@
     <div id="bottom-section">
       <!-- 卡组 -->
       <div id="card-group">
-        <div v-for="(card, index) in card_group" @click="click_card(index)"
-          :class="['card', card.usage_status == CARD_USAGE_STATUS.usable ? 'is-card-usable' : 'is-card-unusable']" >
+        <div v-for="(card, index) in gm.myCards" @click="click_card(index)"
+          :class="['card', gm.checkCardAvailable(index) ? 'is-card-usable' : 'is-card-unusable']" >
           <div class="card-face-div">
-            <img class="card-img" :src="card.img_src" draggable="false">
+            <img class="card-img" :src="card.img" draggable="false">
             <div class="card-name"><span>{{ card.name }}</span></div>
             <div class="is-card-corner">
-              <span v-if="card.usage_status == CARD_USAGE_STATUS.used">已使用</span>
-              <span v-else-if="card.usage_status == CARD_USAGE_STATUS.unusable">不可用</span>
+              <span v-if="gm.myCards[index].used">已使用</span>
+              <span v-else-if="!gm.checkCardAvailable(index)">不可用</span>
             </div>
           </div>
 
           <table class="card-effect-table">
             <tr>
               <td class="card-effect">
-                <span>🎓 {{ num_to_str_with_sign(card.effect.knowledge) }}</span>
-                <div :class="card_effect_style(card.effect.knowledge)"><br></div>
+                <span>🎓 {{ num_to_str_with_sign(card.rknowledge) }}</span>
+                <div :class="card_effect_style(card.rknowledge)"><br></div>
               </td>
               <td class="card-effect">
-                <span>😆 {{ num_to_str_with_sign(card.effect.mood) }}</span>
-                <div :class="card_effect_style(card.effect.mood)"><br></div>
+                <span>😆 {{ num_to_str_with_sign(card.rmood) }}</span>
+                <div :class="card_effect_style(card.rmood)"><br></div>
               </td>
             </tr>
             <tr>
               <td class="card-effect">
-                <span>💪 {{ num_to_str_with_sign(card.effect.energy) }}</span>
-                <div :class="card_effect_style(card.effect.energy)"><br></div>
+                <span>💪 {{ num_to_str_with_sign(card.renergy) }}</span>
+                <div :class="card_effect_style(card.renergy)"><br></div>
               </td>
               <td class="card-effect">
-                <span>💰 {{ num_to_str_with_sign(card.effect.money) }}</span>
-                <div :class="card_effect_style(card.effect.money)"><br></div>
+                <span>💰 {{ num_to_str_with_sign(card.rmoney) }}</span>
+                <div :class="card_effect_style(card.rmoney)"><br></div>
               </td>
             </tr>
           </table>
           <hr>
-          <p class="card-description">{{ card.description }}</p>
+          <p class="card-description">{{ card.desc }}</p>
         </div>
 
       </div>
@@ -127,6 +128,7 @@
   </div>
 </body>
 
+<script src="../js/zhishixuebao.js"></script>
 <script>
   new Vue({
     el: "#main",
@@ -229,6 +231,9 @@
             usage_status: 2
           },
         ]
+        ,
+        gm:this.getGM()
+        
       };
     },
     
@@ -250,12 +255,12 @@
         });
       },
 
-      calculate_progress(status) {
-        return Math.min(status.val / status.max * 100, 100);
+      calculate_progress(val,max) {
+        return Math.min(val / max * 100, 100);
       },
 
-      progress_bar_style(status) {
-        let width = Math.min(status.val / status.max * 100, 100);
+      progress_bar_style(val,max) {
+        let width = Math.min(val / max * 100, 100);
         let color = [
           '#ff0000', '#ff2d00', '#ff7900', '#ff9f00', '#ffc600',
           '#ffd900', '#eeee00', '#d9ff00', '#acff00', '#69f700', '#69f700',
@@ -276,13 +281,19 @@
       },
 
       click_card(index) {
-        let card = this.card_group[index];
+        gm.useCard(index);
+      },
 
-        let s = `name: "${card.name}", effect: {
-  knowledge: ${card.effect.knowledge}, mood: ${card.effect.mood},
-  energy: ${card.effect.energy}, money: ${card.effect.money},
-}`
-        this.print(s);
+      getGM(){
+        return gm;
+      },
+
+      nextDay(){
+        if(!gm.endDay()&&gm.endingDay){
+          
+          this.print("")
+          this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
+        }
       }
     }
   });
