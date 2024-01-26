@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+  <script src="../js/vue2.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <div id="top-section">
+
+      <!-- 角色图片 -->
+      <div id="top-left-section">
+      </div>
+
+      <div id="top-right-section">
+        <!-- 输出面板 -->
+        <div id="top-right-top-section">
+          <textarea id="output-text-area" readonly
+            v-model="output.text_list.join('\n')">
+          </textarea>
+        </div>
+
+        <div id="top-right-bottom-section">
+          <div id="top-right-bottom-left-section">
+            <!-- 属性面板 -->
+            <table class="status-table">
+              <tr>
+                <td class="status-emoji"><span>🎓</span></td>
+                <td class="status-name"><span>知识</span></td>
+                <td class="status-value"><span>{{ status.knowledge.val }} / {{ status.knowledge.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(status.knowledge)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>😆</span></td>
+                <td class="status-name"><span>心情</span></td>
+                <td class="status-value"><span>{{ status.mood.val }} / {{ status.mood.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(status.mood)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>💪</span></td>
+                <td class="status-name"><span>体力</span></td>
+                <td class="status-value"><span>{{ status.energy.val }} / {{ status.energy.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(status.energy)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>💰</span></td>
+                <td class="status-name"><span>资产</span></td>
+                <td class="status-value" colspan="4"><span>{{ status.money.val }} </span></td>
+              </tr>
+            </table>
+            <table class="status-table">
+              <tr>
+                <td class="status-emoji"><span>🎲</span></td>
+                <td class="status-name"><span>行动</span></td>
+                <td class="status-value"><span>{{ status.action.val }} / {{ status.action.max }}</span></td>
+                <td class="status-emoji"><span>🗓️</span></td>
+                <td class="status-name"><span>天数</span></td>
+                <td class="status-value"><span>{{ status.day }}</span></td>
+                <td class="empty"><br></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- 选项面板 -->
+          <div id="top-right-bottom-right-section">
+            <div id="options-panel">
+
+              
+              <button @click='print("1")'>测试</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div id="bottom-section">
+      <!-- 卡组 -->
+      <div id="card-group">
+        <div v-for="(card, index) in card_group" @click="click_card(index)"
+          :class="['card', card.usage_status == CARD_USAGE_STATUS.usable ? 'is-card-usable' : 'is-card-unusable']" >
+          <div class="card-face-div">
+            <img class="card-img" :src="card.img_src" draggable="false">
+            <div class="card-name"><span>{{ card.name }}</span></div>
+            <div class="is-card-corner">
+              <span v-if="card.usage_status == CARD_USAGE_STATUS.used">已使用</span>
+              <span v-else-if="card.usage_status == CARD_USAGE_STATUS.unusable">不可用</span>
+            </div>
+          </div>
+
+          <table class="card-effect-table">
+            <tr>
+              <td class="card-effect">
+                <span>🎓 {{ num_to_str_with_sign(card.effect.knowledge) }}</span>
+                <div :class="card_effect_style(card.effect.knowledge)"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>😆 {{ num_to_str_with_sign(card.effect.mood) }}</span>
+                <div :class="card_effect_style(card.effect.mood)"><br></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="card-effect">
+                <span>💪 {{ num_to_str_with_sign(card.effect.energy) }}</span>
+                <div :class="card_effect_style(card.effect.energy)"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>💰 {{ num_to_str_with_sign(card.effect.money) }}</span>
+                <div :class="card_effect_style(card.effect.money)"><br></div>
+              </td>
+            </tr>
+          </table>
+          <hr>
+          <p class="card-description">{{ card.description }}</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  new Vue({
+    el: "#main",
+    data() {
+      return {
+        output: {
+          text_area: null,
+          text_list_max_length: 100,
+          text_list: [
+            "目标：",
+            "用最少的天数，让“知识”进度条达到100%",
+            "玩法：",
+            "1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌",
+            "2. 每天获得 4 个行动点",
+            "3. 点击卡牌消耗一个行动点和该卡牌",
+            "4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）"
+          ],
+        },
+
+        status: {
+          knowledge: { val: 0,  max: 100 },
+          mood:      { val: 12, max: 20  },
+          energy:    { val: 0,  max: 20  },
+          money:     { val: 1000, max: 100 },
+          action:    { val: 4,  max: 4   },
+          day: 1
+        },
+        action_count: 1,
+
+        CARD_USAGE_STATUS: { /* enum */
+          usable   : 0,
+          unusable : 1,
+          used     : 2,
+        },
+
+        card_group: [
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge: 1, mood:  1,
+              energy:   -1, money: 0,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 0
+          },
+          
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge: 1, mood:  1,
+              energy:   -1, money: 0,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 1
+          },
+
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge: 1, mood:  1,
+              energy:   -1, money: 0,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 2
+          },
+
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge:-1, mood:  1,
+              energy:   -1, money: 10,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 0
+          },
+
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge: 1, mood:  1,
+              energy:    1, money: 0,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 1
+          },
+
+          {
+            img_src: "../static/img/card_learn_1.png",
+            name: "知识学爆",
+            effect: {
+              knowledge: 1, mood:  1,
+              energy:   -1, money: 0,
+            },
+            description: "万般皆下品，唯有读书高",
+            usage_status: 2
+          },
+        ]
+      };
+    },
+    
+    mounted() {
+      this.output.text_area = this.$el.querySelector('#output-text-area');
+    },
+
+    methods: {
+
+      print(text) {
+        this.output.text_list.push(text);
+
+        if (this.output.text_list.length > this.output.text_list_max_length) {
+          this.output.text_list.shift();
+        }
+
+        this.$nextTick(() => {
+          this.output.text_area.scrollTop = this.output.text_area.scrollHeight;
+        });
+      },
+
+      calculate_progress(status) {
+        return Math.min(status.val / status.max * 100, 100);
+      },
+
+      progress_bar_style(status) {
+        let width = Math.min(status.val / status.max * 100, 100);
+        let color = [
+          '#ff0000', '#ff2d00', '#ff7900', '#ff9f00', '#ffc600',
+          '#ffd900', '#eeee00', '#d9ff00', '#acff00', '#69f700', '#69f700',
+        ][Math.floor(width / 10)];
+        return {
+          'width': `${ width }%`,
+          'background-color': color
+        };
+      },
+
+      card_effect_style(effect) {
+        return effect > 0 ? 'card-effect-bkgd-up' :
+               effect < 0 ? 'card-effect-bkgd-down' : 'card-effect-bkgd-none'
+      },
+      
+      num_to_str_with_sign(num) {
+        return `${(num >= 0) ? '+' : '-'} ${Math.abs(num)}`;
+      },
+
+      click_card(index) {
+        let card = this.card_group[index];
+
+        let s = `name: "${card.name}", effect: {
+  knowledge: ${card.effect.knowledge}, mood: ${card.effect.mood},
+  energy: ${card.effect.energy}, money: ${card.effect.money},
+}`
+        this.print(s);
+      }
+    }
+  });
+</script>
+
+</html>

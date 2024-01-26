@@ -1,0 +1,214 @@
+
+body {
+  background-color: #eee;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#main {
+  background-color: #fff;
+  width: 85%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+#top-section,
+#bottom-section,
+#top-left-section,
+#top-right-section,
+#top-right-top-section,
+#top-right-bottom-section,
+#top-right-bottom-left-section,
+#top-right-bottom-right-section { outline: 1px solid #000; }
+
+
+#top-section                    { flex: 4; display: flex; }
+#bottom-section                 { flex: 3; }
+#top-left-section               { flex: 7; }
+#top-right-section              { flex: 8; display: flex; flex-direction: column; }
+#top-right-top-section          { flex: 7; display: flex; flex-direction: column; }
+#top-right-bottom-section       { flex: 1; display: flex; }
+#top-right-bottom-left-section  { flex: 5; }
+#top-right-bottom-right-section { flex: 4; }
+
+
+#output-text-area {
+  background-color: transparent;
+  height: 100%;
+  resize: none;
+  border: none;
+
+  color: #000;
+  font-family: "黑体";
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+#output-text-area:focus {
+  outline: none;
+}
+
+.status-table    { width: 97%; }
+.status-table tr .status-emoji { width: 10%; }
+.status-table tr .status-name  { width: 15%; }
+.status-table tr .status-value { width: 20%; }
+.status-table tr .empty        { width: 10%; }
+.status-table tr .status-bar   { width: 55%; }
+
+.status-table tr .status-bar .progress-bar {
+  height: 15px;
+  border: #000;
+}
+
+.status-table tr span {
+  color: #000;
+  font-family: "黑体";
+  font-size: 1em;
+  font-weight: 500;
+}
+
+#options-panel {
+  width: 100%;
+  height: 100%;
+}
+
+#card-group {
+  flex: 4;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+#card-group .card {
+  background-color: #fff;
+  flex: 1;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 7px;
+  margin-right: 7px;
+  padding: 2px;
+  outline: 2px solid #000;
+  transition: transform 0.18s ease;
+}
+
+#card-group .is-card-usable:hover {
+  transform: translateY(-30px);
+  opacity: 0.9;
+}
+
+#card-group .is-card-unusable:hover {
+  transform: translateY(-5px);
+  opacity: 0.9;
+}
+
+#card-group .card .card-face-div {
+  width: 100%;
+  height: 60%;
+  padding-top: 1%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+#card-group .card .card-face-div .card-img {
+  width: 97%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+}
+
+#card-group .card .card-face-div .card-name {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  z-index: 1;
+  background-color: #fff;
+  padding-left: 5px;
+  padding-right: 25px;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 100%, 0 100%);
+}
+#card-group .card .card-face-div .card-name span {
+  color: #000;
+  font-family: "黑体";
+  font-size: 1em;
+  font-weight: 500;
+  font-style: oblique;
+}
+
+#card-group .card .card-face-div .is-card-corner {
+  background-color: #ffffff;
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  padding-left: 30px;
+  padding-right: 15px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%);
+}
+
+#card-group .card .card-face-div .is-card-corner span {
+  color: #b10000;
+  font-family: "黑体";
+  font-size: 1em;
+  font-weight: 500;
+  font-style: oblique;
+}
+
+
+#card-group .card .card-effect-table    { width: 100%; }
+#card-group .card .card-effect-table td { width: 25%;  }
+
+#card-group .card .card-effect-table .card-effect {
+  position: relative;
+}
+#card-group .card .card-effect-table .card-effect-bkgd-none,
+#card-group .card .card-effect-table .card-effect-bkgd-up,
+#card-group .card .card-effect-table .card-effect-bkgd-down {
+  position: absolute;
+  left: 0;   bottom: 0;
+  width: 20px; height: 100%;
+  z-index: 1;
+}
+#card-group .card .card-effect-table .card-effect span {
+  position: relative;
+  z-index: 2;
+}
+
+#card-group .card .card-effect-table .card-effect-bkgd-none {
+  background-color: #eeee00;
+  clip-path: polygon(0 100%, 0 70%, 100% 70%, 100% 100%);
+}
+
+#card-group .card .card-effect-table .card-effect-bkgd-up {
+  background-color: #b0ff73;
+  clip-path: polygon(0 100%, 50% 50%, 100% 100%);
+}
+
+#card-group .card .card-effect-table .card-effect-bkgd-down {
+  background-color: #ff9090;
+  clip-path: polygon(0 50%, 50% 100%, 100% 50%);
+}
+
+#card-group .card .card-effect-table .card-effect span {
+  padding-left: 20px;
+  color: #000;
+  font-family: "黑体";
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+#card-group .card hr { margin: 3px; }
+
+#card-group .card .card-description {
+  margin-top: 1px;
+  font-family: "黑体";
+  font-size: 0.9em;
+  font-weight: 500;
+  font-style: italic;
+}
