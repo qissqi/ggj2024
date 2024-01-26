@@ -20,6 +20,7 @@ class Player {
 
 // 卡牌
 class Card {
+  isRandom=false
   keep = false
   used = false
   isStatic = false
@@ -99,7 +100,35 @@ class Card {
 //听歌
 class Card_Music extends Card {
   cardEffect(gm){
-    gm.playAudio("../static/audio/zood.mp3")
+    if(gm.music_list.length == 0){
+      gm.music_list.push({name: '保持静音', call_back: () => {gm.playAudio("../static/audio/xbbz.mp3");gm.music_mute=true }})
+      gm.music_list.push({name: '无', call_back: () => {gm.stopPlayAudio();gm.music_mute=false }})
+      if(gm.music_found.length==0){
+        gm.music_list.push(gm.music_all[0])
+        gm.music_all.shift()
+      }
+
+    }
+    if(gm.music_found.length!=0){
+      gm.music_list.push(gm.music_found[0])
+      var music=gm.music_found[0]
+      if(!gm.music_mute){
+        console.log(music.url)
+        gm.playAudio(music.url)
+        gm.music_selected = music
+      }
+      gm.music_found.shift()
+    }
+    else{
+      var r = Math.floor(Math.random()*(gm.music_list.length-2)+2)
+      var music =gm.music_list[r]
+      if(!gm.music_mute){
+        console.log(music.url)
+        gm.playAudio(music.url)
+        gm.music_selected = music
+      }
+    }
+
   }
 }
 
@@ -172,6 +201,15 @@ class Game_Manager {
   player = new Player(10, 10, 100, 1000,0)
   audio = new Audio()
   signed = false
+
+  music_mute=false
+  music_selected={}
+  music_found=[]
+  music_list=[]
+  music_all=[
+    {name:"zood",url:"../static/audio/zood.mp3"},
+    {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
+  ]
 
   // 普通卡牌
   card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-3],[-1,-2],[0],[-10,-30],[1,2])}
@@ -331,6 +369,10 @@ class Game_Manager {
     this.audio.load()
     this.audio.play()
   
+  }
+
+  stopPlayAudio(){
+    this.audio.pause()
   }
 
   test(){

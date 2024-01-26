@@ -1,3 +1,6 @@
+:root {
+  --font-size: 16px;
+}
 
 body {
   background-color: #eee;
@@ -14,18 +17,11 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-size: 16px;
+  
+  font-family: "黑体";
+  color: #ff0000;
+  font-size: var(--font-size);
 }
-
-#top-section,
-#bottom-section,
-#top-left-section,
-#top-right-section,
-#top-right-top-section,
-#top-right-bottom-section,
-#top-right-bottom-left-section,
-#top-right-bottom-right-section { outline: 1px solid #000; }
-
 
 #top-section                    { flex: 4; display: flex; }
 #bottom-section                 { flex: 3; }
@@ -35,7 +31,21 @@ body {
 #top-right-bottom-section       { flex: 1; display: flex; }
 #top-right-bottom-left-section  { flex: 5; }
 #top-right-bottom-right-section { flex: 4; }
+#top-section,
+#bottom-section,
+#top-left-section,
+#top-right-section,
+#top-right-top-section,
+#top-right-bottom-section,
+#top-right-bottom-left-section,
+#top-right-bottom-right-section{
+  outline: 1px solid #000;
+}
 
+#character_portrait {
+  width: 100%;
+  height: 100%;
+}
 
 #output-text-area {
   background-color: transparent;
@@ -46,7 +56,6 @@ body {
   color: #000;
   font-family: "黑体";
   font-size: 0.9em;
-  font-weight: 500;
 }
 
 #output-text-area:focus {
@@ -61,20 +70,59 @@ body {
 .status-table tr .status-bar   { width: 55%; }
 
 .status-table tr .status-bar .progress-bar {
-  height: 15px;
-  border: #000;
+  height: 13px;
 }
 
 .status-table tr span {
   color: #000;
   font-family: "黑体";
-  font-size: 1em;
-  font-weight: 500;
 }
 
 #options-panel {
   width: 100%;
   height: 100%;
+  padding-top: 4px;
+}
+
+#options-panel hr {
+  margin: 4px;
+}
+
+#options-panel span {
+  padding-left: 6px;
+  padding-right: 6px;
+  color: #000;
+  font-family: "黑体";
+  font-size: 0.9em;
+}
+
+#options-panel select {
+  border-radius: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-family: "黑体";
+  font-size: 0.9em;
+}
+#options-panel select:focus {
+  outline: none;
+}
+
+#options-panel button {
+  border-radius: 0;
+  outline: none;
+  border: 1px solid #000;
+  background-color: #fff;
+
+  width: auto;
+  margin-left: 6px;
+  margin-right: 6px;
+  
+  color: #000;
+  font-family: "黑体";
+  font-size: 0.85em;
+}
+#options-panel button:hover {
+  background-color: #eeeeee;
 }
 
 #card-group {
@@ -136,9 +184,6 @@ body {
 }
 #card-group .card .card-face-div .card-name span {
   color: #000;
-  font-family: "黑体";
-  font-size: 1em;
-  font-weight: 500;
   font-style: oblique;
 }
 
@@ -154,9 +199,6 @@ body {
 
 #card-group .card .card-face-div .is-card-corner span {
   color: #b10000;
-  font-family: "黑体";
-  font-size: 1em;
-  font-weight: 500;
   font-style: oblique;
 }
 
@@ -197,18 +239,13 @@ body {
 
 #card-group .card .card-effect-table .card-effect span {
   padding-left: 20px;
-  color: #000;
-  font-family: "黑体";
   font-size: 0.9em;
-  font-weight: 500;
 }
 
 #card-group .card hr { margin: 3px; }
 
 #card-group .card .card-description {
   margin-top: 1px;
-  font-family: "黑体";
   font-size: 0.9em;
-  font-weight: 500;
   font-style: italic;
 }

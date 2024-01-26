@@ -12,13 +12,15 @@
 
       <!-- 角色图片 -->
       <div id="top-left-section">
-        <img id="character_portrait" :src="character_portrait.url">
+
       </div>
 
       <div id="top-right-section">
         <!-- 输出面板 -->
         <div id="top-right-top-section">
-          <textarea id="output-text-area" readonly v-model="output.text_list.join('\n')"></textarea>
+          <textarea id="output-text-area" readonly
+            v-model="output.text_list.join('\n')">
+          </textarea>
         </div>
 
         <div id="top-right-bottom-section">
@@ -28,41 +30,41 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ gm.player.knowledge }} / {{ gm.player.maxKnowledge }}</span></td>
+                <td class="status-value"><span>{{ status.knowledge.val }} / {{ status.knowledge.max }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.knowledge,gm.player.maxKnowledge)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(status.knowledge)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ gm.player.mood }} / {{ gm.player.maxMood }}</span></td>
+                <td class="status-value"><span>{{ status.mood.val }} / {{ status.mood.max }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.mood,gm.player.maxMood)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(status.mood)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ gm.player.energy }} / {{ gm.player.maxEnergy }}</span></td>
+                <td class="status-value"><span>{{ status.energy.val }} / {{ status.energy.max }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.energy,gm.player.maxEnergy)><br></div>
+                  <div class="progress-bar" :style=progress_bar_style(status.energy)><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💰</span></td>
                 <td class="status-name"><span>资产</span></td>
-                <td class="status-value" colspan="4"><span>{{ gm.player.money }} </span></td>
+                <td class="status-value" colspan="4"><span>{{ status.money.val }} </span></td>
               </tr>
             </table>
             <table class="status-table">
               <tr>
                 <td class="status-emoji"><span>🎲</span></td>
                 <td class="status-name"><span>行动</span></td>
-                <td class="status-value"><span>{{ gm.player.actionPoint }} / {{ gm.player.maxActionPoint }}</span></td>
+                <td class="status-value"><span>{{ status.action.val }} / {{ status.action.max }}</span></td>
                 <td class="status-emoji"><span>🗓️</span></td>
                 <td class="status-name"><span>天数</span></td>
-                <td class="status-value"><span>{{ gm.days }}</span></td>
+                <td class="status-value"><span>{{ status.day }}</span></td>
                 <td class="empty"><br></td>
               </tr>
             </table>
@@ -71,10 +73,10 @@
           <!-- 选项面板 -->
           <div id="top-right-bottom-right-section">
             <div id="options-panel">
-              
+
               <span>选歌</span>
-              <select @change="select_music()" v-model="gm.music_selected" style="width: 70%;">
-                <option v-for="music in gm.music_list" :value="music"> {{ music.name }} </option>
+              <select @change="select_music()" v-model="selected_music" style="width: 70%;">
+                <option v-for="music in music_list" :value="music"> {{ music.name }} </option>
               </select>
 
               <hr>
@@ -87,7 +89,7 @@
               <button @click="reset()">重开</button>
 
               <hr>
-              <button @click="nextDay()">今天很努力了，明天再继续努力吧</button>
+              <button @click="next_round()">今天很努力了，明天再继续努力吧</button>
             </div>
           </div>
         </div>
@@ -99,18 +101,18 @@
       <div id="card-group">
 
         <!-- 卡 -->
-        <div v-for="(card, index) in gm.myCards" @click="click_card(index)"
-          :class="['card', gm.checkCardAvailable(index) ? 'is-card-usable' : 'is-card-unusable']" >
+        <div v-for="(card, index) in card_group" @click="click_card(index)"
+          :class="['card', card.usage_status == CARD_USAGE_STATUS.usable ? 'is-card-usable' : 'is-card-unusable']" >
           <div class="card-face-div">
-            <img class="card-img" :src="card.img" draggable="false">
+            <img class="card-img" :src="card.img_src" draggable="false">
             <div class="card-name"><span>{{ card.name }}</span></div>
             <div class="is-card-corner">
-              <span v-if="gm.myCards[index].used">已使用</span>
-              <span v-else-if="!gm.checkCardAvailable(index)">不可用</span>
+              <span v-if="card.usage_status == CARD_USAGE_STATUS.used">已使用</span>
+              <span v-else-if="card.usage_status == CARD_USAGE_STATUS.unusable">不可用</span>
             </div>
           </div>
 
-          <table v-if="card.isRandom"
+          <table v-if="card.usage_status == CARD_USAGE_STATUS.random"
             class="card-effect-table" >
             <tr>
               <td class="card-effect">
@@ -136,54 +138,42 @@
           <table v-else class="card-effect-table">
             <tr>
               <td class="card-effect">
-                <span>🎓 {{ num_to_str_with_sign(card.rknowledge) }}</span>
-                <div :class="card_effect_style(card.rknowledge)"><br></div>
+                <span>🎓 {{ num_to_str_with_sign(card.effect.knowledge) }}</span>
+                <div :class="card_effect_style(card.effect.knowledge)"><br></div>
               </td>
               <td class="card-effect">
-                <span>😆 {{ num_to_str_with_sign(card.rmood) }}</span>
-                <div :class="card_effect_style(card.rmood)"><br></div>
+                <span>😆 {{ num_to_str_with_sign(card.effect.mood) }}</span>
+                <div :class="card_effect_style(card.effect.mood)"><br></div>
               </td>
             </tr>
             <tr>
               <td class="card-effect">
-                <span>💪 {{ num_to_str_with_sign(card.renergy) }}</span>
-                <div :class="card_effect_style(card.renergy)"><br></div>
+                <span>💪 {{ num_to_str_with_sign(card.effect.energy) }}</span>
+                <div :class="card_effect_style(card.effect.energy)"><br></div>
               </td>
               <td class="card-effect">
-                <span>💰 {{ num_to_str_with_sign(card.rmoney) }}</span>
-                <div :class="card_effect_style(card.rmoney)"><br></div>
+                <span>💰 {{ num_to_str_with_sign(card.effect.money) }}</span>
+                <div :class="card_effect_style(card.effect.money)"><br></div>
               </td>
             </tr>
           </table>
           <hr>
-          <p class="card-description">{{ card.desc }}</p>
+          <p class="card-description">{{ card.description }}</p>
         </div>
       </div>
     </div>
   </div>
 </body>
 
-<script src="../js/zhishixuebao.js"></script>
 <script>
   new Vue({
     el: "#main",
     data() {
       return {
-        character_portrait: {
-          url: ""
-        },
         output: {
           text_area: null,
           text_list_max_length: 100,
-          text_list: [
-            "目标：",
-            "用最少的天数，让“知识”进度条达到100%",
-            "玩法：",
-            "1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌",
-            "2. 每天获得 4 个行动点",
-            "3. 点击卡牌消耗一个行动点和该卡牌",
-            "4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）"
-          ],
+          text_list: [],
         },
         font_size: '16px',
         music_list: [
@@ -207,6 +197,7 @@
           normal: 0,
         },
         CARD_USAGE_STATUS: {
+
           usable   : 0,
           unusable : 1,
           used     : 2,
@@ -280,28 +271,28 @@
             usage_status: 3
           },
         ]
-        ,
-        gm:this.getGM()
-        
       };
     },
     
     mounted() {
       document.documentElement.style.setProperty('--font-size', this.font_size);
       this.output.text_area = this.$el.querySelector('#output-text-area');
+      this.print("目标：")
+      this.print("用最少的天数，让“知识”进度条达到100%")
+      this.print("玩法：")
+      this.print("1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌")
+      this.print("2. 每天获得 4 个行动点")
+      this.print("3. 点击卡牌消耗一个行动点和该卡牌")
+      this.print("4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）")
     },
 
     methods: {
       /* 选择播放音乐 */
       select_music() {
-        this.print("已选择播放音乐：" + gm.music_selected.name);
+        this.print("已选择播放音乐：" + this.selected_music.name);
         
-        if (gm.music_selected.call_back) {
-          gm.music_selected.call_back();
-        }
-        else{
-          gm.music_mute=false
-          gm.playAudio(gm.music_selected.url);
+        if (this.selected_music.call_back) {
+          this.selected_music.call_back();
         }
       },
 
@@ -325,13 +316,13 @@
       },
 
       /* 计算进度条 */
-      calculate_progress(val,max) {
-        return Math.min(val / max * 100, 100);
+      calculate_progress(status) {
+        return Math.min(status.val / status.max * 100, 100);
       },
 
       /* 计算进度条的颜色 */
-      progress_bar_style(val,max) {
-        let width = Math.min(val / max * 100, 100);
+      progress_bar_style(status) {
+        let width = Math.min(status.val / status.max * 100, 100);
         let color = [
           '#ff0000', '#ff2d00', '#ff7900', '#ff9f00', '#ffc600',
           '#ffd900', '#eeee00', '#d9ff00', '#acff00', '#69f700', '#69f700',
@@ -355,19 +346,23 @@
 
       /* 点击卡牌 */
       click_card(index) {
-        gm.useCard(index);
+        let card = this.card_group[index];
+
+        let s = `name: "${card.name}", effect: {
+  knowledge: ${card.effect.knowledge}, mood: ${card.effect.mood},
+  energy: ${card.effect.energy}, money: ${card.effect.money},
+}`
+        this.print(s);
       },
 
-      getGM(){
-        return gm;
+      /* 重开 */
+      reset() {
+
       },
 
-      nextDay(){
-        if(!gm.endDay()&&gm.endingDay){
-          
-          this.print("")
-          this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
-        }
+      /* 下一回合 */
+      next_round() {
+
       }
     }
   });
