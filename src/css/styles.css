@@ -21,8 +21,8 @@ body {
   font-size: var(--font-size);
 }
 
-#top-section                    { height: 50%; display: flex; }
-#bottom-section                 { height: 50%; }
+#top-section                    { height: 55%; display: flex; }
+#bottom-section                 { height: 45%; }
 #top-left-section               { width: 40%; }
 #top-right-section              { width: 60%; }
 #top-right-top-section          { height: 55%; display: flex; }
