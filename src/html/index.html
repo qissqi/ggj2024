@@ -87,7 +87,7 @@
               <button @click="reset()">重开</button>
 
               <hr>
-              <button @click="nextDay()">今天很努力了，明天再继续努力吧</button>
+              <button @click="nextDay()" v-if="gm.ending==0">今天很努力了，明天再继续努力吧</button>
             </div>
           </div>
         </div>
@@ -170,6 +170,7 @@
     el: "#main",
     data() {
       return {
+        isEnd:false,
         character_portrait: {
           url: "../static/img/直播1.png"
         },
@@ -178,12 +179,12 @@
           text_list_max_length: 100,
           text_list: [
             "目标：",
-            "用最少的天数，让“知识”进度条达到100%",
+            "用最少的天数, 让“知识”进度条达到100%",
             "玩法：",
-            "1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌",
-            "2. 每天获得 4 个行动点",
-            "3. 点击卡牌消耗一个行动点和该卡牌",
-            "4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）"
+            "1. 每天获得 6 张卡牌, 最左侧固定为 1 张“学知识”且不可被选择保留",
+            "2. 每天恢复至 4 个行动点",
+            "3. 点击卡牌消耗1个行动点并使用该卡牌",
+            "4. 每天结束后，可以在剩余的随机卡牌中选择 1 张保留"
           ],
         },
         font_size: '16px',
@@ -314,32 +315,51 @@
 
       /* 点击卡牌 */
       click_card(index) {
+        if(this.gm.checkCardAvailable(index)){
+          var text =  this.gm.cardDesc(index)
+          if(text!=null){
+            this.print("")
+            this.print(text)
+          }
+        }
+
         gm.useCard(index);
         this.hover_card(null);
+        console.log(gm.ending,this.isEnd)
+        if(gm.ending>0 && !this.isEnd){
+          this.print("")
+          this.print(`结局 ${gm.ending}`)
+          this.print(gm.end)
+          this.print("")
+          this.isEnd=true
+        }
       },
 
       getGM(){
         return gm;
+        isEnd=false;
       },
 
       nextDay(){
         if(!gm.endDay()&&gm.endingDay){
-          
           this.print("")
           this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
+          this.print("")
         }
+        
       },
 
       reset(){
         this.gm.init()
+        this.gm.stopPlayAudio()
         this.output.text_list = [
             "目标：",
-            "用最少的天数，让“知识”进度条达到100%",
+            "用最少的天数, 让“知识”进度条达到100%",
             "玩法：",
-            "1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌",
-            "2. 每天获得 4 个行动点",
-            "3. 点击卡牌消耗一个行动点和该卡牌",
-            "4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）"
+            "1. 每天获得 6 张卡牌, 最左侧固定为 1 张“学知识”且不可被选择保留",
+            "2. 每天恢复至 4 个行动点",
+            "3. 点击卡牌消耗1个行动点并使用该卡牌",
+            "4. 每天结束后，可以在剩余的随机卡牌中选择 1 张保留"
           ]
       }
 
