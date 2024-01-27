@@ -28,31 +28,48 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ player.status.knowledge.val }} / {{ player.status.knowledge.max }}</span></td>
+                <td class="status-value"><span>
+                  {{ player.status.knowledge.val + hover_card_effect.knowledge }} / {{ player.status.knowledge.max }}
+                </span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(player.status.knowledge)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(
+                    player.status.knowledge.val + hover_card_effect.knowledge, player.status.knowledge.max)"
+                    ><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ player.status.mood.val }} / {{ player.status.mood.max }}</span></td>
+                <td class="status-value"><span>
+                  {{ player.status.mood.val  + hover_card_effect.mood }} / {{ player.status.mood.max }}
+                </span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(player.status.mood)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(
+                    player.status.mood.val + hover_card_effect.mood, player.status.mood.max)"
+                    ><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ player.status.energy.val }} / {{ player.status.energy.max }}</span></td>
+                <td class="status-value"><span>
+                  {{ player.status.energy.val + hover_card_effect.energy }} / {{ player.status.energy.max }}
+                </span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(player.status.energy)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(
+                    player.status.energy.val + hover_card_effect.energy, player.status.energy.max)"
+                    ><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💰</span></td>
                 <td class="status-name"><span>资产</span></td>
-                <td class="status-value" colspan="4"><span>{{ player.status.money.val }} </span></td>
+                <td class="status-value"><span>{{ player.status.money.val }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style="progress_bar_style(
+                    player.status.money.val + hover_card_effect.money, player.status.money.max)"
+                    ><br></div>
+                </td>
               </tr>
             </table>
             <table class="status-table">
@@ -100,7 +117,11 @@
 
         <!-- 卡 -->
         <div v-for="(card, idx) in player.card_group" @click="click_card(idx)"
-          :class="['card', card.usage_status & Card_USAGE_STATUS.usable ? 'is-card-usable' : 'is-card-unusable']" >
+          @mouseenter="hover_card(card)" @mouseleave="hover_card(null)"
+          :class="['card',
+               (click_card_status.val == click_card_status.enum.use  && (card.usage_status & Card_USAGE_STATUS.usable))
+            || (click_card_status.val == click_card_status.enum.keep && !(card.usage_status & Card_USAGE_STATUS.used) && idx != 0)
+            ? 'is-card-usable' : 'is-card-unusable']">
           <div class="card-face-div">
             <img class="card-img" :src="card.img_url" draggable="false">
             <div class="card-name"><span>{{ card.name }}</span></div>
@@ -189,6 +210,12 @@
 
         player: new Player(),
         Card_USAGE_STATUS: Card.USAGE_STATUS,
+        hover_card_effect: {
+          knowledge: 0,
+          mood     : 0,
+          energy   : 0,
+          money    : 0,
+        },
 
         click_card_status: {
           enum: { use: 0, keep: 1 },
@@ -200,8 +227,17 @@
     mounted() {
       document.documentElement.style.setProperty('--font-size', this.font_size);
       this.output.text_area = this.$el.querySelector('#output-text-area');
-
-      this.player.reset();
+      this.print(
+`
+目标：
+在限定天数内，用最少的天数，让“知识”进度条达到100%
+玩法：
+ - 每天固定 1 张学习卡、 5 张随机卡和 4 个行动点
+ - 消耗一个行动点使用一张卡
+ - 耗尽行动点后，点击“明天继续努力”，开启新的一天
+   （可选在剩余的未使用的随机卡中选择 1 张，继承到明天）
+ - 若行动点未耗尽，也可开启新的一天，但是有几率扣除少许体力和心情
+`     );
     },
 
     methods: {
@@ -234,14 +270,32 @@
         });
       },
 
+      /* 获取鼠标下方的卡牌的信息 */
+      hover_card(card) {
+        if (card == null) {
+          this.hover_card_effect.knowledge = 0;
+          this.hover_card_effect.mood      = 0;
+          this.hover_card_effect.energy    = 0;
+          this.hover_card_effect.money     = 0;
+          return;
+        }
+
+        if (card.usage_status == this.Card_USAGE_STATUS.usable) {
+          this.hover_card_effect.knowledge = card.effect.knowledge;
+          this.hover_card_effect.mood      = card.effect.mood;
+          this.hover_card_effect.energy    = card.effect.energy;
+          this.hover_card_effect.money     = card.effect.money;
+        }
+      },
+
       /* 计算进度条 */
       calculate_progress(val,max) {
         return Math.min(val / max * 100, 100);
       },
 
       /* 计算进度条的颜色 */
-      progress_bar_style(status) {
-        let width = Math.min(status.val / status.max * 100, 100);
+      progress_bar_style(val, max) {
+        let width = Math.min(val / max * 100, 100);
         let color = [
           '#ff0000', '#ff2d00', '#ff7900', '#ff9f00', '#ffc600',
           '#ffd900', '#eeee00', '#d9ff00', '#acff00', '#69f700', '#69f700',
@@ -265,33 +319,61 @@
 
       /* 点击卡牌 */
       click_card(idx) {
+        /* 判断游戏结束 */
+        if (this.player.is_game_over()) {
+            this.game_over();
+            return;
+        }
+
+        /* 选卡模式，继承到下一回合 */
         if (this.click_card_status.val == this.click_card_status.enum.keep) {
           this.next_round(idx);
           return;
-        }/* 
-        else: this.click_card_status.val == this.click_card_status.enum.use */
+        }
 
+        /* 出卡模式 */
         let res = this.player.use_card(idx);
-        if (true == res.val) {
-          this.print(`使用 [${this.player.card_group[idx].name}] ${res.txt}`);
-        } else {
+        if (false == res.val) {
           this.print(`无法使用 [${this.player.card_group[idx].name}] ${res.txt}`);
+          return;
+        }
+        this.hover_card(null);
+
+        /* 出卡成功 */
+        this.print(`使用 [${this.player.card_group[idx].name}] ${res.txt}`);
+
+        /* 判断游戏结束 */
+        if (this.player.is_game_over()) {
+            this.game_over();
+            return;
         }
       },
 
       /* 重开 */
       reset() {
-
+        this.output.text_list.length = 0;
+        this.click_card_status.val = this.click_card_status.enum.use;
+        this.player.reset();
       },
 
       /* 下一回合 */
       next_round(keep_card_idx=null) {
-        if (this.click_card_status.val == this.click_card_status.enum.use) {
+        /* 判断游戏结束 */
+        if (this.player.is_game_over()) {
+          this.game_over();
+          return;
+        }
+
+        /* 从用卡模式变成留卡模式 */
+        if (this.click_card_status.val == this.click_card_status.enum.use){
           this.click_card_status.val = this.click_card_status.enum.keep;
           this.print("今天很努力了，明天再继续努力吧，选择一张未使用过的卡以继承到明天（再次点击则不继承卡）");
         }
-        else /* this.click_card_status.val == this.click_card_status.enum.keep */ {
+        /* 进入下一回合 */
+        else /* this.click_card_status.val == this.click_card_status.enum.keep */
+        {
           let res = this.player.next_round(keep_card_idx);
+
           if (true == res.val) {
             this.click_card_status.val = this.click_card_status.enum.use;
             this.print(`新的一天开始了，今天要好好努力`);
@@ -301,6 +383,11 @@
           }
         }
       },
+
+      /* 打印游戏结局 */
+      game_over() {
+        this.print(`游戏结束 [${this.player.game_outcome.is_winner ? '胜利' : '失败'}] ${this.player.game_outcome.text}`);
+      }
     }
   });
 </script>

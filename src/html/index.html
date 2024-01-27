@@ -28,31 +28,31 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ gm.player.knowledge }} / {{ gm.player.maxKnowledge }}</span></td>
+                <td class="status-value"><span>{{ gm.player.knowledge + hover_card_effect.knowledge }} / {{ gm.player.maxKnowledge }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.knowledge,gm.player.maxKnowledge)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(gm.player.knowledge + hover_card_effect.knowledge,gm.player.maxKnowledge)"><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ gm.player.mood }} / {{ gm.player.maxMood }}</span></td>
+                <td class="status-value"><span>{{ gm.player.mood + hover_card_effect.mood }} / {{ gm.player.maxMood }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.mood,gm.player.maxMood)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(gm.player.mood + hover_card_effect.mood,gm.player.maxMood)"><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ gm.player.energy }} / {{ gm.player.maxEnergy }}</span></td>
+                <td class="status-value"><span>{{ gm.player.energy + hover_card_effect.energy }} / {{ gm.player.maxEnergy }}</span></td>
                 <td class="status-bar" colspan="3">
-                  <div class="progress-bar" :style=progress_bar_style(gm.player.energy,gm.player.maxEnergy)><br></div>
+                  <div class="progress-bar" :style="progress_bar_style(gm.player.energy + hover_card_effect.energy,gm.player.maxEnergy)"><br></div>
                 </td>
               </tr>
               <tr>
                 <td class="status-emoji"><span>💰</span></td>
                 <td class="status-name"><span>资产</span></td>
-                <td class="status-value" colspan="4"><span>{{ gm.player.money }} </span></td>
+                <td class="status-value" colspan="4"><span>{{ gm.player.money + hover_card_effect.money}} </span></td>
               </tr>
             </table>
             <table class="status-table">
@@ -100,6 +100,7 @@
 
         <!-- 卡 -->
         <div v-for="(card, index) in gm.myCards" @click="click_card(index)"
+          @mouseenter="hover_card(card)" @mouseleave="hover_card(null)"
           :class="['card', gm.checkCardAvailable(index) ? 'is-card-usable' : 'is-card-unusable']" >
           <div class="card-face-div">
             <img class="card-img" :src="card.img" draggable="false">
@@ -191,6 +192,12 @@
           { name: '无' },
         ],
         selected_music: {},
+        hover_card_effect: {
+          knowledge: 0,
+          mood     : 0,
+          energy   : 0,
+          money    : 0,
+        },
 
         status: {
           knowledge: { val: 0,  max: 100 },
@@ -258,6 +265,24 @@
         });
       },
 
+      hover_card(card) {
+        console.log(card)
+        if (card == null) {
+          this.hover_card_effect.knowledge = 0;
+          this.hover_card_effect.mood      = 0;
+          this.hover_card_effect.energy    = 0;
+          this.hover_card_effect.money     = 0;
+          return;
+        }
+        else if (card.used == false){
+          this.hover_card_effect.knowledge = card.rknowledge;
+          this.hover_card_effect.mood      = card.rmood;
+          this.hover_card_effect.energy    = card.renergy;
+          this.hover_card_effect.money     = card.rmoney;
+        }
+        console.log(card)
+      },
+
       /* 计算进度条 */
       calculate_progress(val,max) {
         return Math.min(val / max * 100, 100);
@@ -290,6 +315,7 @@
       /* 点击卡牌 */
       click_card(index) {
         gm.useCard(index);
+        this.hover_card(null);
       },
 
       getGM(){
