@@ -160,7 +160,7 @@ class Card_Music extends Card {
 class Card_Phone extends Card {
   cardEffect(gm){
     this.openWeb()
-    if(Math.random() < 0.6){
+    if(Math.random() < 0.4){
       var nc = gm.normalCards()
       console.log("随机卡",nc)
       return nc[Math.floor(Math.random() * (nc.length-1) + 1)]
