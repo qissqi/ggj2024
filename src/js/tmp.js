@@ -146,6 +146,7 @@ class Card_Random_Event extends Card {
       health:    0,
     };
     this.description = "触发随机事件";
+    this.usage_status |= Card.USAGE_STATUS.random;
   }
 
   special_effect(player) {
