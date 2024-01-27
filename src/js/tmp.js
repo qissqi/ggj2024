@@ -601,69 +601,39 @@ class Player {
 
   /* 判断游戏是否结束（仅用于出卡后的判断） */
   judge_game_over_after_card() {
+
+    let set_game_outcome = (is_winner, text) => {
+      this.game_outcome = {
+        is_over   : true,
+        is_winner : is_winner,
+        text      : text,
+      }
+    }
+
     if (this.status.knowledge.val > this.status.knowledge.max) {
-      this.game_outcome = {
-        is_over   : true,
-        is_winner : true,
-        text      : "知识学爆",
-      }
+      set_game_outcome(true, "知识学爆");
     }
-
-    if (this.status.money.val > this.status.money.max) {
-      this.game_outcome = {
-        is_over   : true,
-        is_winner : true,
-        text      : "爆金币",
-      }
+    else if (this.status.money.val > this.status.money.max) {
+      set_game_outcome(true, "爆金币");
     }
-    
-    if (this.status.health.val <= 0) {
-      this.game_outcome = {
-        is_over   : true,
-        is_winner : false,
-        text      : "吸烟过多",
-      }
+    else if (this.status.health.val <= 0) {
+      set_game_outcome(false, "吸烟过多");
     }
-
-    if (this.action_count.val == 0) {
+    else if (this.action_count.val == 0) {
       if (this.status.energy.val + this.status.mood.val <= 2) {
-        this.game_outcome = {
-          is_over   : true,
-          is_winner : false,
-          text      : "身心俱疲",
-        }
+        set_game_outcome(false, "身心俱疲");
       }
-
-      if (this.status.energy.val == 0) {
-        this.game_outcome = {
-          is_over   : true,
-          is_winner : false,
-          text      : "体力不支",
-        }
+      else if (this.status.energy.val == 0) {
+        set_game_outcome(false, "体力不支");
       }
-
-      if (this.status.mood.val == 0) {
-        this.game_outcome = {
-          is_over   : true,
-          is_winner : false,
-          text      : "心情抑郁",
-        }
+      else if (this.status.mood.val == 0) {
+        set_game_outcome(false, "心情抑郁");
       }
-
-      if (this.status.money.val <= 3) {
-        this.game_outcome = {
-          is_over   : true,
-          is_winner : false,
-          text      : "穷困潦倒",
-        }
+      else if (this.status.money.val <= 3) {
+        set_game_outcome(false, "穷困潦倒");
       }
-      
-      if (this.action_count <= 0) {
-        this.game_outcome = {
-          is_over   : true,
-          is_winner : false,
-          text      : "时间耗尽",
-        }
+      else if (this.action_count <= 0) {
+        set_game_outcome(false, "时间耗尽");
       }
     }
   }
