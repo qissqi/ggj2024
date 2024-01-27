@@ -162,16 +162,11 @@ class Card_Music extends Card {
 //玩手机
 class Card_Phone extends Card {
   cardEffect(gm){
-    this.openWeb()
-  }
-  openWeb(){
-    var webs = [
-      "https://www.bilibili.com/video/BV1GJ411x7h7",
-      "https://ys.mihoyo.com/main/",
-    ]
-    var web = webs[Math.floor(Math.random() * webs.length)]
-
+    var r = Math.floor(Math.random() * gm.webs.length)
+    var web = gm.webs[r]
+    gm.webs.splice(r,1)
     window.open(web, '_blank');
+
   }
 
 }
@@ -344,6 +339,10 @@ class Game_Manager {
     this.music_all=[
       {name:"zood",url:"../static/audio/zood.mp3"},
       {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
+    ]
+    this.webs = [
+      "https://www.bilibili.com/video/BV1GJ411x7h7",
+      "https://ys.mihoyo.com/main/",
     ]
     
     this.newDay()
@@ -550,7 +549,10 @@ class Game_Manager {
   }
 
   cardDesc(index){
-    return this.myCards[index].desc
+    var card = this.myCards[index]
+    if(card.keep)
+      return null
+    return card.desc
   }
 
   test(){
