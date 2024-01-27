@@ -12,7 +12,7 @@
 
       <!-- 角色图片 -->
       <div id="top-left-section">
-        <img id="character_portrait" :src="character_portrait.url">
+        <img id="character_portrait" :src="gm.portrait">
       </div>
 
       <div id="top-right-section">
@@ -302,7 +302,21 @@
           this.print("")
           this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
         }
+      },
+
+      reset(){
+        this.gm.init()
+        this.output.text_list = [
+            "目标：",
+            "用最少的天数，让“知识”进度条达到100%",
+            "玩法：",
+            "1. 每天固定 1 张“学知识”卡牌和 5 张随机卡牌",
+            "2. 每天获得 4 个行动点",
+            "3. 点击卡牌消耗一个行动点和该卡牌",
+            "4. 每天结束后，玩家在剩余的随机卡牌中选择 1 张，继承到下一天（若剩余 1 张则直接继承）"
+          ]
       }
+
     }
   });
 </script>
