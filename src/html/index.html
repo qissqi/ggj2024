@@ -87,7 +87,7 @@
               <button @click="reset()">重开</button>
 
               <hr>
-              <button @click="nextDay()">今天很努力了，明天再继续努力吧</button>
+              <button @click="nextDay()" v-if="gm.ending==0">今天很努力了，明天再继续努力吧</button>
             </div>
           </div>
         </div>
@@ -169,6 +169,7 @@
     el: "#main",
     data() {
       return {
+        isEnd:false,
         character_portrait: {
           url: "../static/img/直播1.png"
         },
@@ -289,23 +290,38 @@
 
       /* 点击卡牌 */
       click_card(index) {
+        if(this.gm.checkCardAvailable(index)){
+          this.print("")
+          this.print(this.gm.cardDesc(index))
+        }
+
         gm.useCard(index);
+        console.log(gm.ending,this.isEnd)
+        if(gm.ending>0 && !this.isEnd){
+          this.print("")
+          this.print(gm.end)
+          this.print("")
+          this.isEnd=true
+        }
       },
 
       getGM(){
         return gm;
+        isEnd=false;
       },
 
       nextDay(){
         if(!gm.endDay()&&gm.endingDay){
-          
           this.print("")
           this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
+          this.print("")
         }
+        
       },
 
       reset(){
         this.gm.init()
+        this.gm.stopPlayAudio()
         this.output.text_list = [
             "目标：",
             "用最少的天数，让“知识”进度条达到100%",

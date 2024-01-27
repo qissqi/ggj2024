@@ -160,7 +160,7 @@ class Card_Music extends Card {
 class Card_Phone extends Card {
   cardEffect(gm){
     this.openWeb()
-    if(Math.random() < 0.7){
+    if(Math.random() < 0.6){
       var nc = gm.normalCards()
       return nc[Math.floor(Math.random() * (nc.length-1) + 1)]
     }
@@ -219,6 +219,10 @@ class Card_Album extends Card {
       gm.music_found.push(gm.music_all[0])
       gm.music_all.shift()
     }
+    gm.albums ++
+    if(gm.albums==4){
+      gm.specialCardsOnce.push(gm.card_musicFestival())
+    }
     return super.cardEffect(gm)
   }
 }
@@ -235,7 +239,7 @@ class Card_Weibo extends Card {
 
 //音乐盛典
 class Card_MusicFestival extends Card {
-
+  
 }
 
 //签约唱片公司
@@ -256,6 +260,10 @@ class Card_Agent extends Card {
 
 
 class Game_Manager {
+
+  ending=0
+  end=""
+
   endingDay =false
   keepCard = null
   myCards = []
@@ -266,6 +274,7 @@ class Game_Manager {
   signed = false
   isAgent = false
 
+  albums = 0
   music_mute=false
   music_selected={}
   music_found=[]
@@ -276,25 +285,25 @@ class Game_Manager {
   ]
 
   // 普通卡牌
-  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-3],[-1,-2],[0],[-10,-30],[1,2])}
-  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[0],[-4])}
+  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-3],[-1,-2],[0],[-20,-30],[1,2])}
+  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-2],[3])}
   card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[3,4],[2,3])}
-  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[0],[6],[-1,-2],[-10])}
-  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0],[1])}
-  card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[1,2])}
-  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网, 随机生成一张其他卡牌","../static/img/玩手机.jpg")}
+  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[5],[-5,-7],[-10])}
+  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[1],[1])}
+  card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
+  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网, 随机生成一张其他卡牌, 有概率生成更稀有的卡牌","../static/img/玩手机.jpg")}
   
   //特殊卡牌
   //多次卡牌
   card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20])}
   card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-3],[-1],[0],[40])}
-  card_event(){return new Card_Event("随机事件","丁真在理塘发生随机事件","../static/img/丁真疑惑.jpg")}
+  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的, 各属性随机加成","../static/img/丁真疑惑.jpg")}
   
   //单次卡牌
-  card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[1000])}
-  card_weibo (){return new Card_Weibo("微博之夜","丁真在微博之夜上上下下","../static/img/微博之夜.png",[-3],[-3],[0],[1000])}
-  card_musicFestival (){return new Card_MusicFestival("亚洲音乐盛典","","../static/img/音乐盛典.png",[-3],[-3],[0],[1000])}
-  card_signRecord (){return new Card_SignRecord("签约唱片公司","理塘王子","../static/dz_test.jpeg")}
+  card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[100])}
+  card_weibo (){return new Card_Weibo("微博之夜","丁真在微博之夜上上下下","../static/img/微博之夜.png",[-3],[-3],[0],[100])}
+  card_musicFestival (){return new Card_MusicFestival("亚洲音乐盛典","这就是理塘王子和雪豹的实力","../static/img/音乐盛典.png",[-3],[-3],[0],[100])}
+  card_signRecord (){return new Card_SignRecord("签约唱片公司","唱片公司看中了理塘王子的实力, 稀有卡牌可能出现\"发行专辑\"","../static/dz_test.jpeg")}
   card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/锐刻代言人.png")}
   
   normalCards (){return [this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
@@ -311,8 +320,10 @@ class Game_Manager {
   }
   
   init() {
-    this.specialCardsOnce = [this.card_speak(), this.card_weibo(), this.card_musicFestival(), this.card_signRecord(), this.card_agent()]
+    this.specialCardsOnce = [this.card_speak(), this.card_weibo(), this.card_signRecord(), this.card_agent()]
     this.days = 0;
+    this.ending = 0;
+    this.albums = 0
     this.endingDay =false
     this.keepCard = null
     this.myCards = []
@@ -339,11 +350,56 @@ class Game_Manager {
     this.days ++ 
     console.log(`第${this.days}天`)
     this.myCards = this.getCards(5)
+
+    this.checkState()
+    this.checkEnding()
   }
 
+  checkState(){
+    if(this.player.energy <= 5 || this.player.mood <= 5 || this.player.money < 100 ){
+      this.portrait = "../static/img/丁真哭脸.png"
+    }
+    else{
+      this.portrait = "../static/dz_test.jpeg"
+    }
+  }
+
+  checkEnding(){
+    if(this.player.knowledge>=100){
+      this.ending=1
+      this.end = "丁真努力学习成为了最出色的小镇做题家"
+      this.portrait = "../static/img/知识学爆1.png"
+    }
+    if(this.player.health<=0){
+      this.ending=2
+      this.end = "丁真电子烟成瘾, 肺部产生病变, 一天不抽肺痒痒"
+      if(gm.music_list.length == 0){
+        gm.music_list.push({name: '保持静音', call_back: () => {gm.playAudio("../static/audio/xbbz.mp3");gm.music_mute=true }})
+        gm.music_list.push({name: '无', call_back: () => {gm.playAudio("../static/audio/xbbz.mp3");gm.music_mute=false }})
+      }
+      var xyy={name:"肺痒痒",url:"../static/audio/FYY.mp3"}
+      if(this.music_list.filter((item) => item.name == '肺痒痒').length == 0){
+        gm.music_list.push(xyy)
+      }
+      if(!this.music_mute){
+        this.music_selected=xyy
+        this.playAudio(this.music_selected.url)
+      }
+      this.portrait = "../static/img/肺痒痒.jpg"
+    }
+    else if(this.player.energy == 0 || this.player.mood == 0 ){
+      this.ending=3
+      this.end = "丁真不堪重负, 累倒在了珍珠背上"
+      this.portrait = "../static/img/寄.png"
+    }
+  }
   
   checkCardAvailable(index) {
     var card = this.myCards[index]
+    if(this.ending){
+      card.usage_status = 1
+      return false
+    }
     
     if(card.used && !card.keep ){
       card.usage_status ==3?3: 2
@@ -402,6 +458,7 @@ class Game_Manager {
       this.myCards[index].used = true
     }
     console.log(this.myCards)
+    this.checkEnding()
   }
 
   getCards(nums){
@@ -484,6 +541,10 @@ class Game_Manager {
 
   stopPlayAudio(){
     this.audio.pause()
+  }
+
+  cardDesc(index){
+    return this.myCards[index].desc
   }
 
   test(){
