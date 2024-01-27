@@ -99,18 +99,26 @@
       <div id="card-group">
 
         <!-- 卡 -->
-        <div v-for="(card, index) in player.card_group" @click="click_card(index)"
-          :class="['card', (card.usage_status == Card_USAGE_STATUS.usable
-                         || card.usage_status == Card_USAGE_STATUS.random) ? 'is-card-usable' : 'is-card-unusable']" >
+        <div v-for="(card, idx) in player.card_group" @click="click_card(idx)"
+          :class="['card', card.usage_status & Card_USAGE_STATUS.usable ? 'is-card-usable' : 'is-card-unusable']" >
           <div class="card-face-div">
             <img class="card-img" :src="card.img_url" draggable="false">
             <div class="card-name"><span>{{ card.name }}</span></div>
             <div class="is-card-corner">
-              <span v-if="card.usage_status == Card_USAGE_STATUS.used">已使用</span>
-              <span v-else-if="card.usage_status == Card_USAGE_STATUS.unusable">不可用</span>
+              <span>
+                {{
+                  card.usage_status & Card_USAGE_STATUS.used           ? "已使用" :
+
+                  click_card_status.val == click_card_status.enum.use
+                  && !(card.usage_status & Card_USAGE_STATUS.usable)   ? "不可用" :
+
+                  click_card_status.val == click_card_status.enum.keep
+                  && idx == 0                                          ? "无须继承" : ""
+                }}
+              </span>
             </div>
           </div>
-          <table v-if="card.usage_status == Card_USAGE_STATUS.random"
+          <table v-if="card.usage_status & Card_USAGE_STATUS.random"
             class="card-effect-table" >
             <tr>
               <td class="card-effect">
@@ -180,7 +188,12 @@
         font_size: '16px',
 
         player: new Player(),
-        Card_USAGE_STATUS: Card.USAGE_STATUS
+        Card_USAGE_STATUS: Card.USAGE_STATUS,
+
+        click_card_status: {
+          enum: { use: 0, keep: 1 },
+          val: 0,
+        }
       };
     },
     
@@ -251,13 +264,18 @@
       },
 
       /* 点击卡牌 */
-      click_card(index) {
-        let res = this.player.use_card(index);
+      click_card(idx) {
+        if (this.click_card_status.val == this.click_card_status.enum.keep) {
+          this.next_round(idx);
+          return;
+        }/* 
+        else: this.click_card_status.val == this.click_card_status.enum.use */
 
+        let res = this.player.use_card(idx);
         if (true == res.val) {
-          this.print(`使用 [${this.player.card_group[index].name}] ${res.txt}`);
+          this.print(`使用 [${this.player.card_group[idx].name}] ${res.txt}`);
         } else {
-          this.print(`无法使用 [${this.player.card_group[index].name}] ${res.txt}`);
+          this.print(`无法使用 [${this.player.card_group[idx].name}] ${res.txt}`);
         }
       },
 
@@ -267,9 +285,21 @@
       },
 
       /* 下一回合 */
-      next_round() {
-        this.print("请选择一张未使用过的卡以继承到下一天");
-        this.player.next_round();
+      next_round(keep_card_idx=null) {
+        if (this.click_card_status.val == this.click_card_status.enum.use) {
+          this.click_card_status.val = this.click_card_status.enum.keep;
+          this.print("今天很努力了，明天再继续努力吧，选择一张未使用过的卡以继承到明天（再次点击则不继承卡）");
+        }
+        else /* this.click_card_status.val == this.click_card_status.enum.keep */ {
+          let res = this.player.next_round(keep_card_idx);
+          if (true == res.val) {
+            this.click_card_status.val = this.click_card_status.enum.use;
+            this.print(`新的一天开始了，今天要好好努力`);
+          }
+          else {
+            this.print(res.txt);
+          }
+        }
       },
     }
   });
