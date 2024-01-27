@@ -162,10 +162,13 @@ class Card_Phone extends Card {
     this.openWeb()
     if(Math.random() < 0.6){
       var nc = gm.normalCards()
+      console.log("随机卡",nc)
       return nc[Math.floor(Math.random() * (nc.length-1) + 1)]
     }
     else{
-      return gm.getSpecialCard()
+      var n2c= gm.getSpecialCard()
+      console.log("随机卡",n2c)
+      return n2c
     }
   }
 
@@ -267,7 +270,7 @@ class Game_Manager {
   endingDay =false
   keepCard = null
   myCards = []
-  player = new Player(10, 10, 100, 1000,0)
+  player = new Player(10, 10, 100, 300,0)
   audio = new Audio()
   portrait="../static/dz_test.jpeg"
 
@@ -308,7 +311,7 @@ class Game_Manager {
   
   normalCards (){return [this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
   specialCards (){
-    var cards = [this.card_stream(),card_event()]
+    var cards = [this.card_stream(),this.card_event()]
     if(this.signed)
       cards.push(this.card_album())
     return cards
@@ -416,6 +419,7 @@ class Game_Manager {
   }
 
   cardValueCheck(card){
+    // console.log("check",card)
     if(card.keep && card.isStatic)
       return false
     if(card.keep && !card.isStatic)
