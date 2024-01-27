@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+  <script src="../js/vue2.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <div id="top-section">
+
+      <!-- 角色图片 -->
+      <div id="top-left-section">
+        <img id="character_portrait" :src="character_portrait.url">
+      </div>
+
+      <div id="top-right-section">
+        <!-- 输出面板 -->
+        <div id="top-right-top-section">
+          <textarea id="output-text-area" readonly v-model="output.text_list.join('\n')"></textarea>
+        </div>
+
+        <div id="top-right-bottom-section">
+          <div id="top-right-bottom-left-section">
+            <!-- 属性面板 -->
+            <table class="status-table">
+              <tr>
+                <td class="status-emoji"><span>🎓</span></td>
+                <td class="status-name"><span>知识</span></td>
+                <td class="status-value"><span>{{ player.status.knowledge.val }} / {{ player.status.knowledge.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(player.status.knowledge)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>😆</span></td>
+                <td class="status-name"><span>心情</span></td>
+                <td class="status-value"><span>{{ player.status.mood.val }} / {{ player.status.mood.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(player.status.mood)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>💪</span></td>
+                <td class="status-name"><span>体力</span></td>
+                <td class="status-value"><span>{{ player.status.energy.val }} / {{ player.status.energy.max }}</span></td>
+                <td class="status-bar" colspan="3">
+                  <div class="progress-bar" :style=progress_bar_style(player.status.energy)><br></div>
+                </td>
+              </tr>
+              <tr>
+                <td class="status-emoji"><span>💰</span></td>
+                <td class="status-name"><span>资产</span></td>
+                <td class="status-value" colspan="4"><span>{{ player.status.money.val }} </span></td>
+              </tr>
+            </table>
+            <table class="status-table">
+              <tr>
+                <td class="status-emoji"><span>🎲</span></td>
+                <td class="status-name"><span>行动</span></td>
+                <td class="status-value"><span>{{ player.action_count.val }} / {{ player.action_count.max }}</span></td>
+                <td class="status-emoji"><span>🗓️</span></td>
+                <td class="status-name"><span>天数</span></td>
+                <td class="status-value"><span>{{ player.round_count }}</span></td>
+                <td class="empty"><br></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- 选项面板 -->
+          <div id="top-right-bottom-right-section">
+            <div id="options-panel">
+              
+              <span>选歌</span>
+              <select @change="select_music()" style="width: 70%;">
+                <option v-for="music in [{name: '无'}]" :value="music"> {{ music.name }} </option>
+              </select>
+
+              <hr>
+              <span>设置字体大小</span>
+              <select @change="set_font_size()" v-model="font_size">
+                <option v-for="sz in 8" :value="((sz * 2) + 8) + 'px'"> {{sz * 2 + 8}} </option>
+              </select>
+
+              <hr>
+              <button @click="reset()">重开</button>
+
+              <hr>
+              <button @click="next_round()">今天很努力了，明天再继续努力吧</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bottom-section">
+      <!-- 卡组 -->
+      <div id="card-group">
+
+        <!-- 卡 -->
+        <div v-for="(card, index) in player.card_group" @click="click_card(index)"
+          :class="['card', (card.usage_status == Card_USAGE_STATUS.usable
+                         || card.usage_status == Card_USAGE_STATUS.random) ? 'is-card-usable' : 'is-card-unusable']" >
+          <div class="card-face-div">
+            <img class="card-img" :src="card.img_url" draggable="false">
+            <div class="card-name"><span>{{ card.name }}</span></div>
+            <div class="is-card-corner">
+              <span v-if="card.usage_status == Card_USAGE_STATUS.used">已使用</span>
+              <span v-else-if="card.usage_status == Card_USAGE_STATUS.unusable">不可用</span>
+            </div>
+          </div>
+          <table v-if="card.usage_status == Card_USAGE_STATUS.random"
+            class="card-effect-table" >
+            <tr>
+              <td class="card-effect">
+                <span>🎓 +?</span>
+                <div class="card-effect-bkgd-none"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>😆 +?</span>
+                <div class="card-effect-bkgd-none"><br></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="card-effect">
+                <span>💪 +?</span>
+                <div class="card-effect-bkgd-none"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>💰 +?</span>
+                <div class="card-effect-bkgd-none"><br></div>
+              </td>
+            </tr>
+          </table>
+          <table v-else class="card-effect-table">
+            <tr>
+              <td class="card-effect">
+                <span>🎓 {{ num_to_str_with_sign(card.effect.knowledge) }}</span>
+                <div :class="card_effect_style(card.effect.knowledge)"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>😆 {{ num_to_str_with_sign(card.effect.mood) }}</span>
+                <div :class="card_effect_style(card.effect.mood)"><br></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="card-effect">
+                <span>💪 {{ num_to_str_with_sign(card.effect.energy) }}</span>
+                <div :class="card_effect_style(card.effect.energy)"><br></div>
+              </td>
+              <td class="card-effect">
+                <span>💰 {{ num_to_str_with_sign(card.effect.money) }}</span>
+                <div :class="card_effect_style(card.effect.money)"><br></div>
+              </td>
+            </tr>
+          </table>
+          <hr>
+          <p class="card-description">{{ card.description }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="../js/tmp.js"></script>
+<script>
+  new Vue({
+    el: "#main",
+    data() {
+      return {
+        character_portrait: {
+          url: "../static/img/直播1.png"
+        },
+        output: {
+          text_area: null,
+          text_list_max_length: 100,
+          text_list: [],
+        },
+        font_size: '16px',
+
+        player: new Player(),
+        Card_USAGE_STATUS: Card.USAGE_STATUS
+      };
+    },
+    
+    mounted() {
+      document.documentElement.style.setProperty('--font-size', this.font_size);
+      this.output.text_area = this.$el.querySelector('#output-text-area');
+
+      this.player.reset();
+    },
+
+    methods: {
+      /* 设置角色立绘 */
+      set_character_portrait(img_url) {
+        this.character_portrait.url = img_url;
+      },
+
+      /* 选择播放音乐 */
+      select_music() {
+        this.print("播放音乐");
+      },
+
+      /* 设置字体大小 */
+      set_font_size() {
+        document.documentElement.style.setProperty('--font-size', this.font_size);
+        this.print("已设置字体大小为：" + this.font_size);
+      },
+
+      /* 输出文本 */
+      print(text) {
+        this.output.text_list.push(text);
+
+        if (this.output.text_list.length > this.output.text_list_max_length) {
+          this.output.text_list.shift();
+        }
+
+        this.$nextTick(() => {
+          this.output.text_area.scrollTop = this.output.text_area.scrollHeight;
+        });
+      },
+
+      /* 计算进度条 */
+      calculate_progress(val,max) {
+        return Math.min(val / max * 100, 100);
+      },
+
+      /* 计算进度条的颜色 */
+      progress_bar_style(status) {
+        let width = Math.min(status.val / status.max * 100, 100);
+        let color = [
+          '#ff0000', '#ff2d00', '#ff7900', '#ff9f00', '#ffc600',
+          '#ffd900', '#eeee00', '#d9ff00', '#acff00', '#69f700', '#69f700',
+        ][Math.floor(width / 10)];
+        return {
+          'width': `${ width }%`,
+          'background-color': color
+        };
+      },
+
+      /* 卡牌效益的箭头 */
+      card_effect_style(effect) {
+        return effect > 0 ? 'card-effect-bkgd-up' :
+               effect < 0 ? 'card-effect-bkgd-down' : 'card-effect-bkgd-none'
+      },
+      
+      /* 数字转字符串，带有符号 */
+      num_to_str_with_sign(num) {
+        return `${(num >= 0) ? '+' : '-'}${Math.abs(num)}`;
+      },
+
+      /* 点击卡牌 */
+      click_card(index) {
+        let res = this.player.use_card(index);
+
+        if (true == res.val) {
+          this.print(`使用 [${this.player.card_group[index].name}] ${res.txt}`);
+        } else {
+          this.print(`无法使用 [${this.player.card_group[index].name}] ${res.txt}`);
+        }
+      },
+
+      /* 重开 */
+      reset() {
+
+      },
+
+      /* 下一回合 */
+      next_round() {
+        this.print("请选择一张未使用过的卡以继承到下一天");
+        this.player.next_round();
+      },
+    }
+  });
+</script>
+
+</html>

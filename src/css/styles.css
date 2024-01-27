@@ -48,7 +48,8 @@ body {
 
 #output-text-area {
   width: 100%;
-  height: 100%;
+  height: 95%;
+  padding-top: 5px;
   resize: none;
   border: none;
 
@@ -118,8 +119,10 @@ body {
   
   color: #000;
   font-family: "黑体";
-  font-size: 0.85em;
+  font-size: 0.9em;
 }
+
+#options-panel select:hover,
 #options-panel button:hover {
   background-color: #eeeeee;
 }
@@ -189,7 +192,7 @@ body {
 #card-group .card .card-face-div .is-card-corner {
   background-color: #ffffff;
   position: absolute;
-  top: 1px;
+  top: 0;
   right: 1px;
   padding-left: 30px;
   padding-right: 15px;
