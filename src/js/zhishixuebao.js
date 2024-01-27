@@ -160,18 +160,7 @@ class Card_Music extends Card {
 class Card_Phone extends Card {
   cardEffect(gm){
     this.openWeb()
-    if(Math.random() < 0.4){
-      var nc = gm.normalCards()
-      console.log("随机卡",nc)
-      return nc[Math.floor(Math.random() * (nc.length-1) + 1)]
-    }
-    else{
-      var n2c= gm.getSpecialCard()
-      console.log("随机卡",n2c)
-      return n2c
-    }
   }
-
   openWeb(){
     var webs = [
       "https://www.bilibili.com/video/BV1GJ411x7h7",
@@ -190,16 +179,26 @@ class Card_Event extends Card {
     super.init()
     this.usage_status=3
     this.isRandom=true
-    this.renergy = Math.floor(Math.random()*11)-5
-    this.rmood = Math.floor(Math.random()*11)-5
-    this.rmoney = Math.floor(Math.random()*11)-5
-    this.rknowledge = Math.floor(Math.random()*11)-5
 
   }
   cardEffect(gm){
-    this.usage_status = 2
-    this.isRandom=false
-    return super.cardEffect(gm)
+    if(Math.random() < 0.6){
+      var ncs = gm.normalCards()
+      var nc = ncs[Math.floor(Math.random() * (ncs.length-1) + 1)]
+      nc.used=true
+      nc.usage_status=2
+      console.log("随机卡",nc)
+      nc.cardEffect(gm)
+      return nc
+    }
+    else{
+      var n2c= gm.getSpecialCard()
+      n2c.used = true
+      n2c.usage_status = 2
+      console.log("随机卡",n2c)
+      n2c.cardEffect(gm)
+      return n2c
+    }
   }
 }
 
@@ -288,19 +287,19 @@ class Game_Manager {
   ]
 
   // 普通卡牌
-  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-1],[-1,-2],[0],[-20,-30],[2,3])}
-  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-2],[3])}
-  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[3,4],[2,3])}
+  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-1],[-2,-1],[0],[-20,-30],[2,3])}
+  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-1],[3])}
+  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[1,3],[1,3])}
   card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[5],[-5,-7],[-10])}
-  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[1],[1])}
+  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[2],[1])}
   card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
-  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网, 随机生成一张其他卡牌, 有概率生成更稀有的卡牌","../static/img/玩手机.jpg")}
+  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[1],[1,2],[0])}
+  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的","../static/img/丁真疑惑.jpg")}
   
   //特殊卡牌
   //多次卡牌
   card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20])}
-  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-3],[-1],[0],[40])}
-  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的, 各属性随机加成","../static/img/丁真疑惑.jpg")}
+  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40])}
   
   //单次卡牌
   card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[100])}
@@ -309,9 +308,9 @@ class Game_Manager {
   card_signRecord (){return new Card_SignRecord("签约唱片公司","唱片公司看中了理塘王子的实力, 稀有卡牌可能出现\"发行专辑\"","../static/dz_test.jpeg")}
   card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/锐刻代言人.png")}
   
-  normalCards (){return [this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
+  normalCards (){return [this.card_event(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
   specialCards (){
-    var cards = [this.card_stream(),this.card_event()]
+    var cards = [this.card_stream()]
     if(this.signed)
       cards.push(this.card_album())
     return cards
@@ -330,7 +329,7 @@ class Game_Manager {
     this.endingDay =false
     this.keepCard = null
     this.myCards = []
-    this.player = new Player(10, 10, 100, 1000,0)
+    this.player = new Player(10, 10, 100, 300,0)
     this.audio = new Audio()
     this.portrait="../static/dz_test.jpeg"
     this.signed = false
