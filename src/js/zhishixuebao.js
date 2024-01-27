@@ -109,6 +109,7 @@ class Card {
 
 }
 
+//抽烟
 class Card_Smoke extends Card {
   checkAvailable(gm){
     if(gm.isAgent){
@@ -130,6 +131,8 @@ class Card_Music extends Card {
       }
 
     }
+    if(!gm.audio.paused)
+      return
     if(gm.music_found.length!=0){
       console.log("gm.music_found",gm.music_found)
       gm.music_list.push(gm.music_found[0])
