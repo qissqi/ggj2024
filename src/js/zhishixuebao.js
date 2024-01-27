@@ -288,7 +288,7 @@ class Game_Manager {
   ]
 
   // 普通卡牌
-  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-3],[-1,-2],[0],[-20,-30],[1,2])}
+  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-1],[-1,-2],[0],[-20,-30],[2,3])}
   card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-2],[3])}
   card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[3,4],[2,3])}
   card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[5],[-5,-7],[-10])}
