@@ -28,7 +28,7 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ gm.player.knowledge + hover_card_effect.knowledge }} / {{ gm.player.maxKnowledge }}</span></td>
+                <td class="status-value"><span>{{ Math.min(gm.player.knowledge + hover_card_effect.knowledge, gm.player.maxKnowledge) }} / {{ gm.player.maxKnowledge }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.knowledge + hover_card_effect.knowledge,gm.player.maxKnowledge)"><br></div>
                 </td>
@@ -36,7 +36,7 @@
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ gm.player.mood + hover_card_effect.mood }} / {{ gm.player.maxMood }}</span></td>
+                <td class="status-value"><span>{{ Math.min(gm.player.mood + hover_card_effect.mood, gm.player.maxMood) }} / {{ gm.player.maxMood }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.mood + hover_card_effect.mood,gm.player.maxMood)"><br></div>
                 </td>
@@ -44,7 +44,7 @@
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ gm.player.energy + hover_card_effect.energy }} / {{ gm.player.maxEnergy }}</span></td>
+                <td class="status-value"><span>{{ Math.min(gm.player.energy + hover_card_effect.energy, gm.player.maxEnergy) }} / {{ gm.player.maxEnergy }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.energy + hover_card_effect.energy,gm.player.maxEnergy)"><br></div>
                 </td>
