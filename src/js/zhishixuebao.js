@@ -132,7 +132,7 @@ class Card_Music extends Card {
 
     }
     if(!gm.audio.paused)
-      return
+      return super.cardEffect(gm)
     if(gm.music_found.length!=0){
       console.log("gm.music_found",gm.music_found)
       gm.music_list.push(gm.music_found[0])
@@ -155,6 +155,7 @@ class Card_Music extends Card {
         gm.music_selected = music
       }
     }
+    return super.cardEffect(gm)
 
   }
 }
@@ -162,11 +163,13 @@ class Card_Music extends Card {
 //玩手机
 class Card_Phone extends Card {
   cardEffect(gm){
+    if(gm.webs.length==0) 
+      return super.cardEffect(gm)
     var r = Math.floor(Math.random() * gm.webs.length)
     var web = gm.webs[r]
     gm.webs.splice(r,1)
     window.open(web, '_blank');
-
+    return super.cardEffect(gm)
   }
 
 }
@@ -246,6 +249,7 @@ class Card_MusicFestival extends Card {
 class Card_SignRecord extends Card {
   cardEffect(gm){
     gm.signed=true
+    return super.cardEffect(gm)
   }
 }
 
