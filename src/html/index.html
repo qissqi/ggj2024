@@ -275,7 +275,7 @@
           this.hover_card_effect.money     = 0;
           return;
         }
-        else if (card.used == false){
+        if (!card.used && gm.checkCard(card)){
           this.hover_card_effect.knowledge = card.rknowledge;
           this.hover_card_effect.mood      = card.rmood;
           this.hover_card_effect.energy    = card.renergy;

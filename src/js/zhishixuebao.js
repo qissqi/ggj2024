@@ -436,6 +436,10 @@ class Game_Manager {
   
   checkCardAvailable(index) {
     var card = this.myCards[index]
+    return this.checkCard(card)
+  }
+
+  checkCard(card){
     if(this.ending){
       card.usage_status = 1
       return false
