@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <link rel="stylesheet" type="text/css" href="../css/styles.css">
+  <link rel="stylesheet" type="text/css" href="../css/tmp.css">
   <script src="../js/vue2.js"></script>
 </head>
 
@@ -12,7 +12,7 @@
 
       <!-- 角色图片 -->
       <div id="top-left-section">
-        <img id="character_portrait" :src="character_portrait.url">
+        <img id="character_portrait" :src="character_portrait.url" draggable="false">
       </div>
 
       <div id="top-right-section">
@@ -28,9 +28,9 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>
-                  {{ Math.max(0, Math.min(player.status.knowledge.val + hover_card_effect.knowledge, player.status.knowledge.max)) }} / {{ player.status.knowledge.max }}
-                </span></td>
+                <td class="status-value-val"><span>{{ player.status.knowledge.val }}</span></td>
+                <td class="status-value-add"><span>{{ hover_card_effect.knowledge == 0 ? "" : num_to_str_with_sign(hover_card_effect.knowledge) }}</span></td>
+                <td class="status-value-max"><span>/{{ player.status.knowledge.max }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(
                     player.status.knowledge.val + hover_card_effect.knowledge, player.status.knowledge.max)"
@@ -40,9 +40,10 @@
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>
-                  {{ Math.max(0, Math.min(player.status.mood.val  + hover_card_effect.mood, player.status.mood.max)) }} / {{ player.status.mood.max }}
-                </span></td>
+                <td class="status-value-val"><span>{{ player.status.mood.val }}</span></td>
+                <td class="status-value-add"><span :class="player.status.mood.val + hover_card_effect.mood <= 1 ? 'warn' : ''">
+                  {{ hover_card_effect.mood == 0 ? "" : num_to_str_with_sign(hover_card_effect.mood) }}</span></td>
+                <td class="status-value-max"><span>/{{ player.status.mood.max }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(
                     player.status.mood.val + hover_card_effect.mood, player.status.mood.max)"
@@ -52,9 +53,10 @@
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>
-                  {{ Math.max(0, Math.min(player.status.energy.val + hover_card_effect.energy, player.status.energy.max)) }} / {{ player.status.energy.max }}
-                </span></td>
+                <td class="status-value-val"><span>{{ player.status.energy.val }}</span></td>
+                <td class="status-value-add"><span :class="player.status.energy.val + hover_card_effect.energy <= 1 ? 'warn' : ''">
+                  {{ hover_card_effect.energy == 0 ? "" : num_to_str_with_sign(hover_card_effect.energy) }}</span></td>
+                <td class="status-value-max"><span>/{{ player.status.energy.max }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(
                     player.status.energy.val + hover_card_effect.energy, player.status.energy.max)"
@@ -64,7 +66,10 @@
               <tr>
                 <td class="status-emoji"><span>💰</span></td>
                 <td class="status-name"><span>资产</span></td>
-                <td class="status-value"><span>{{ player.status.money.val }}</span></td>
+                <td class="status-value-val"><span>{{ player.status.money.val }}</span></td>
+                <td class="status-value-add"><span :class="player.status.money.val + hover_card_effect.money <= 3 ? 'warn' : ''">
+                  {{ hover_card_effect.money == 0 ? "" : num_to_str_with_sign(hover_card_effect.money) }}</span></td>
+                <td class="status-value-max"><span>/{{ player.status.money.max }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(
                     player.status.money.val + hover_card_effect.money, player.status.money.max)"
@@ -76,10 +81,11 @@
               <tr>
                 <td class="status-emoji"><span>🎲</span></td>
                 <td class="status-name"><span>行动</span></td>
-                <td class="status-value"><span>{{ player.action_count.val }} / {{ player.action_count.max }}</span></td>
+                <td class="status-value-val"><span>{{ player.action_count.val }}</span></td>
+                <td class="empty"><br></td>
                 <td class="status-emoji"><span>🗓️</span></td>
                 <td class="status-name"><span>天数</span></td>
-                <td class="status-value"><span>{{ player.round_count }}</span></td>
+                <td class="status-value-val"><span>{{ player.round_count }}</span></td>
                 <td class="empty"><br></td>
               </tr>
             </table>
@@ -140,30 +146,7 @@
               </span>
             </div>
           </div>
-          <table v-if="(card.usage_status & Card_USAGE_STATUS.random) && !(card.usage_status & Card_USAGE_STATUS.used)"
-            class="card-effect-table" >
-            <tr>
-              <td class="card-effect">
-                <span>🎓 ?</span>
-                <div class="card-effect-bkgd-none"><br></div>
-              </td>
-              <td class="card-effect">
-                <span>😆 ?</span>
-                <div class="card-effect-bkgd-none"><br></div>
-              </td>
-            </tr>
-            <tr>
-              <td class="card-effect">
-                <span>💪 ?</span>
-                <div class="card-effect-bkgd-none"><br></div>
-              </td>
-              <td class="card-effect">
-                <span>💰 ?</span>
-                <div class="card-effect-bkgd-none"><br></div>
-              </td>
-            </tr>
-          </table>
-          <table v-else class="card-effect-table">
+          <table class="card-effect-table">
             <tr>
               <td class="card-effect">
                 <span>🎓 {{ num_to_str_with_sign(card.effect.knowledge) }}</span>
@@ -228,23 +211,33 @@
     mounted() {
       document.documentElement.style.setProperty('--font-size', this.font_size);
       this.output.text_area = this.$el.querySelector('#output-text-area');
-      this.print(
-`
-目标：
-在限定天数内，用最少的天数，让“知识”进度条达到100%
-玩法：
- - 每天固定 1 张学习卡、 5 张随机卡和 4 个行动点
- - 消耗一个行动点使用一张卡
- - 耗尽行动点后，点击“明天继续努力”，开启新的一天
-   （可选在剩余的未使用的随机卡中选择 1 张，继承到明天）
- - 若行动点未耗尽，也可开启新的一天，但是有几率扣除少许体力和心情
-`     );
+      this.reset();
     },
 
     methods: {
       /* 设置角色立绘 */
       set_character_portrait(img_url) {
         this.character_portrait.url = img_url;
+      },
+
+      print_intro() {
+        this.print(
+`--- [ 知识 学爆 100 天 ] ---
+ * 玩法：
+  1. 每天固定 1 张学习卡、 5 张随机卡和 4 个行动点
+  2. 消耗一个行动点使用一张卡
+  3. 耗尽行动点后，点击“明天继续努力”，开启新的一天
+     （可选 1 张未使用的卡继承到明天）
+  4. 若行动点未耗尽，也可开启新的一天，但是有几率扣除少许体力和心情
+ * 结局：
+  1. “知识”或“资产”进度条达到100%，则游戏胜利
+  1. 一天结束后，如果心情低落,或体力透支，或耗尽资产，则游戏失败
+     （心情=0，或体力=0，或心情+体力<=3，或资产<=3）
+  3. 100天后未胜利，则游戏失败
+`     );
+        this.$nextTick(() => {
+          this.output.text_area.scrollTop = 0;
+        });
       },
 
       /* 选择播放音乐 */
@@ -285,9 +278,9 @@
          || (this.click_card_status.val == this.click_card_status.enum.keep && !(card.usage_status & this.Card_USAGE_STATUS.used)))
         {
           this.hover_card_effect.knowledge = card.effect.knowledge;
-          this.hover_card_effect.mood      = card.effect.mood;
-          this.hover_card_effect.energy    = card.effect.energy;
-          this.hover_card_effect.money     = card.effect.money;
+          this.hover_card_effect.mood      = card.effect.mood     ;
+          this.hover_card_effect.energy    = card.effect.energy   ;
+          this.hover_card_effect.money     = card.effect.money    ;
         }
       },
 
@@ -317,7 +310,7 @@
       
       /* 数字转字符串，带有符号 */
       num_to_str_with_sign(num) {
-        return `${(num >= 0) ? '+' : '-'}${Math.abs(num)}`;
+        return num == null ? "?" : `${(num >= 0) ? '+' : '-'}${Math.abs(num)}`;
       },
 
       /* 点击卡牌 */
@@ -327,27 +320,22 @@
             this.game_over();
             return;
         }
-
         /* 选卡模式，继承到下一回合 */
         if (this.click_card_status.val == this.click_card_status.enum.keep) {
           this.next_round(idx);
           return;
         }
         /* else 出卡模式 */
-
         /* 出卡 */
         let res = this.player.use_card(idx);
         if (false == res.val) {
           this.print(`无法使用 [${this.player.card_group[idx].name}] ${res.txt}`);
           return;
         }
-
         /* 出卡成功 */
         this.hover_card(null);
-        
         this.print(`[行动${this.player.action_count.val + 1}]\n` +
                    `使用[${this.player.card_group[idx].name}] ${res.txt}`);
-
         /* 判断游戏结束 */
         if (this.player.is_game_over()) {
             this.game_over();
@@ -360,6 +348,7 @@
         this.output.text_list.length = 0;
         this.click_card_status.val = this.click_card_status.enum.use;
         this.player.reset();
+        this.print_intro();
       },
 
       /* 下一回合 */
@@ -380,12 +369,13 @@
         else /* this.click_card_status.val == this.click_card_status.enum.keep */
         {
           /* 这里不需要判断游戏结束，因为留卡模式的时候已经判断过了 */
-          debugger
           let res = this.player.next_round(keep_card_idx);
-
-          if (true == res.val) {
-            this.click_card_status.val = this.click_card_status.enum.use;
+          if (false == res.val) {
+            this.print(res.txt);
+            return;
           }
+          
+          this.click_card_status.val = this.click_card_status.enum.use;
           this.print(`[第${this.player.round_count}天]\n` + res.txt)
         }
       },

@@ -14,11 +14,11 @@ class Card {
     this.name = "card base";
     this.img_url = "";
     this.effect = {
-      knowledge: 0,
-      mood:      0,
-      energy:    0,
-      money:     0,
-      health:    0
+      knowledge: null, /* null 表示不确定的数值（在做数值计算时 null 会隐式类型转换成 0） */
+      mood:      null,
+      energy:    null,
+      money:     null,
+      health:    null,
     };
     this.description   = "";
     this.usage_status  = Card.USAGE_STATUS.usable;
@@ -39,19 +39,18 @@ class Card {
 }
 
 class Card_Learn extends Card {
-  /* 学习卡唯一可以增加知识的卡，是通关游戏的关键卡牌
-     学习是很累的，可能会耗费心神，可能会消耗体力
-     可能要消耗一部分金钱购买学习资料
+  /* 学习卡可以增加知识的卡，是通关游戏的关键卡牌
+     学习是很累的，非常耗费心神和体力，还要消耗金钱购买学习资料
   */
   constructor() {
     super();
-    this.name = "知识学爆";
+    this.name = "学知识";
     this.img_url = "../static/img/知识学爆2.jpg";
     this.effect = {
-      knowledge: Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3]),
-      mood:      Util.get_random_item([-5, -5, -4, -4, -3, -3, -2, -1, 0, 1]),
-      energy:    Util.get_random_item([-5, -5, -4, -4, -3, -3, -2, -2, -1, 0]),
-      money:     Util.get_random_item([-5, -4, -3, -3, -2, -2, -1, -1, 0]),
+      knowledge: Util.get_random_item([1, 1, 1, 2, 3]),
+      mood:      Util.get_random_item([-7, -6, -6, -6, -6, -5, -4, -4, -3]),
+      energy:    Util.get_random_item([-7, -6, -6, -6, -6, -5, -4, -3]),
+      money:     Util.get_random_item([-5, -5, -5, -4, -4, -4, -4, -3]),
       health:    0,
     };
     this.description = "万般皆下品，唯有读书高";
@@ -65,7 +64,7 @@ class Card_Learn extends Card {
 
 class Card_Listen_To_Music extends Card {
   /* 听音乐可以放松身心，让心情变得舒畅，也可能会恢复体力哦
-     要消耗一部分金钱购买音乐
+     要消耗金钱购买音乐
   */
   constructor() {
     super();
@@ -73,9 +72,9 @@ class Card_Listen_To_Music extends Card {
     this.img_url = "../static/img/专辑.jpg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 1, 1, 1, 2, 2, 2, 3]),
-      energy:    Util.get_random_item([0, 0, 0, 1, 1]),
-      money:     Util.get_random_item([-3, -2, -2, -2, -2, -1, -1, -1, -1]),
+      mood:      Util.get_random_item([1, 1, 1, 2]),
+      energy:    Util.get_random_item([0, 0, 0, 0, 0, 0, 0, 0, 1, 2]),
+      money:     -1,
       health:    0,
     };
     this.description = "欣赏音乐，放松心情";
@@ -96,12 +95,32 @@ class Card_Play_Phone extends Card {
     this.img_url = "../static/img/玩手机.jpg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 1, 1, 2]),
-      energy:    Util.get_random_item([0, 0, 0, 0, 0, 0, 0, 1]),
-      money:     Util.get_random_int(-5, 0),
+      mood:      null,
+      energy:    null,
+      money:     Util.get_random_item([-2, -2, -1, -1]),
       health:    0,
     };
     this.description = "5G上网，放松心情";
+  }
+
+  use_event(player) {
+    this.effect.mood   = Util.get_random_item([-2, -1, 0, 1, 1, 2, 3]);
+    this.effect.energy = Util.get_random_item([-2, -1, 0, 1, 1, 2, 3]);
+
+    player.status.mood.add(this.effect.mood)
+    player.status.energy.add(this.effect.energy);
+
+    if (this.effect.mood > 0 && this.effect.energy >= 0) {
+      this.description = "玩手机真开心";
+    }
+    else if (this.effect.energy < 0) {
+      this.description = "玩累了";
+    }
+    else {
+      this.description = "呃...";
+    }
+
+    return this.description;
   }
 }
 
@@ -114,24 +133,26 @@ class Card_Sleep extends Card {
     this.img_url = "../static/dz_test.jpeg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2]),
-      energy:    Util.get_random_item([1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4]),
+      mood:      Util.get_random_item([0, 0, 0, 0, 0, 0, 1, 2]),
+      energy:    Util.get_random_item([2, 3, 3, 3, 3, 3, 4, 4, 4]),
       money:     0,
-      health:    Util.get_random_item([0, 0, 0, 0, 0, 0, 1]),
+      health:    Util.get_random_int(0, 10) == 0 ? 1 : 0,
     };
     this.description = "软绵绵的床好舒服";
   }
 
   use_event(player) {
-    /* 在体力值较低时，如果首要行动是睡觉，小概率会花费一整天的时间恢复所有体力 */
-    if (   player.status.energy.val <= Util.get_random_item([2, 2, 3, 3, 4])
-        && player.action_count.val >= player.action_count.max - 1
-        && Util.get_random_int(0, 2) == 0
+    debugger
+    /* 在（卡片生效前）体力值较低时，回合的首要行动是睡觉，小概率会花费两天的时间恢复所有体力 */
+    if (   player.action_count.val == player.action_count.max - 1
+        && player.status.energy.val - this.effect.energy <= Util.get_random_item([1, 1, 1, 1, 1, 2])
+        && Util.get_random_int(0, 1) == 0
     ) {
       this.effect.energy = player.status.energy.max;
-      this.description = "因为太累睡昏过去了，睡了一天睡饱啦";
+      this.description = "因为太累睡昏过去了，睡了两天睡饱啦";
       player.status.energy.val = player.status.energy.max;
-      player.action_count.val = 0;
+      player.action_count.val  = 0;
+      player.round_count      -= 1;
     }
 
     return this.description;
@@ -148,10 +169,10 @@ class Card_Smoke extends Card {
     this.img_url = "../static/img/电子烟.png";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([0, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5]),
-      energy:    Util.get_random_item([0, 1, 2, 2, 2, 3, 3, 3, 4, 4]),
-      money:     Util.get_random_int(-18, -6),
-      health:    Util.get_random_item([-5, -5, -4, -4, , -3, -3, -2, -2, -1]),
+      mood:      Util.get_random_item([3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7]),
+      energy:    Util.get_random_item([3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7]),
+      money:     Util.get_random_int(-30, -15),
+      health:    Util.get_random_item([-5, -5, -5, -5, -4, -4, -4, -4, -4, -3]),
     };
     this.description = "芜湖芜湖真的好满足";
   }
@@ -159,7 +180,7 @@ class Card_Smoke extends Card {
   update_event(player) {
     if (player.achievement.is_RELX_V_brand_ambassador) {
       /* 品牌大使的优惠 */
-      this.effect.money = Math.trunc(this.effect.money / 2);
+      this.effect.money = Math.trunc(this.effect.money / 3 * 2);
     }
   }
 }
@@ -174,10 +195,10 @@ class Card_Play_With_Snow_Leopard extends Card {
     this.img_url = "../static/img/雪豹.jpeg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 2, 2, 2]),
-      energy:    Util.get_random_int(-2, 2),
+      mood:      Util.get_random_item([1, 1, 1, 1, 1, 2, 2]),
+      energy:    Util.get_random_int(-3, 0),
       money:     0,
-      health:    Util.get_random_item([0, 0, 0, 0, 0, 0, 0, 1]),
+      health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
     this.description = "芝士雪豹，我的动物朋友";
   }
@@ -193,23 +214,20 @@ class Card_Riding extends Card {
     this.img_url = "../static/img/骑小马.png";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3]),
-      energy:    Util.get_random_item([-1, 0, 0, 0, 0, 0, 1, 1, 1, 1]),
+      mood:      Util.get_random_item([1, 1, 1, 1, 1, 2, 2]),
+      energy:    Util.get_random_int(-3, -1),
       money:     0,
-      health:    Util.get_random_item([0, 0, 0, 0, 0, 0, 0, 1]),
+      health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
     this.description = "我的小马比赛拿过第一";
   }
 
   use_event(player) {
-    if (Util.get_random_int(0, 10) <= 20) {
-      this.effect.money = Util.get_random_item([/*1, 1, 1, 1, 1, 1, 1, 2, 2, 2, */30000]);
+    if (Util.get_random_int(0, 6) <= 1) {
+      this.effect.money = Util.get_random_item([1, 1, 1, 1, 1, 2, 2, 3, 4]);
       this.description = "骑着小马外出，幸运地捡到了金币";
 
-      player.status.money.val += this.effect.money;
-      if (player.status.money.val > player.status.money.max) {
-        player.status.money.val = player.status.money.max;
-      }
+      player.status.money.add(this.effect.money);
     }
     return this.description;
   }
@@ -220,22 +238,22 @@ class Card_Random_Event extends Card {
   */
   constructor() {
     super();
-    this.name = "随机事件";
+    this.name = "？";
     this.img_url = "../static/img/问号.png";
     this.effect = {
-      knowledge: 0,
-      mood:      0,
-      energy:    0,
-      money:     0,
-      health:    0,
+      knowledge: null,
+      mood:      null,
+      energy:    null,
+      money:     null,
+      health:    null,
     };
-    this.description = "触发随机事件";
+    this.description = "？";
     this.usage_status |= Card.USAGE_STATUS.random;
   }
 
   use_event(player) {
     let self_idx = player.card_group.findIndex(card => card === this);
-    let new_card = (Util.get_random_int(0, 8) <= 2)
+    let new_card = (Util.get_random_int(0, 8) <= 1)
         ? Card_Factory.get_special_card() /* 有一定概率变为特殊卡，触发特殊事件 */
         : Card_Factory.get_random_card();
 
@@ -243,6 +261,72 @@ class Card_Random_Event extends Card {
     player.card_group[self_idx] = new_card;
 
     return player.force_use_card(new_card).txt;
+  }
+}
+
+class Card_Learn_A_Lot extends Card {
+  /* 知识学爆卡可以让你轻松学到知识，真的非常轻松
+  */
+  constructor() {
+    super();
+    this.name = "知识学爆";
+    this.img_url = "../static/img/知识学爆1.png";
+    this.effect = {
+      knowledge: Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 1, 2, 3]),
+      mood:      0,
+      energy:    0,
+      money:     0,
+      health:    0,
+    };
+    this.description = "轻轻松松学到了知识";
+  }
+
+  use_event(player) {
+    player.last_learning = player.round_count;
+    return this.description;
+  }
+}
+
+class Card_Learned_Live extends Card {
+  /* 学会了网络直播
+  */
+  constructor() {
+    super();
+    this.name = "学会网络直播";
+    this.img_url = "../static/img/直播2.png";
+    this.effect = {
+      knowledge: 0,
+      mood:      Util.get_random_item([0, 0, 0, 1]),
+      energy:    0,
+      money:     0,
+      health:    0,
+    };
+    this.description = "以后可以开直播赚大钱咯";
+  }
+
+  use_event(player) {
+    Card_Factory.remove_special_card_class(Card_Learned_Live);
+    Card_Factory.add_normal_card_class(Card_Live); /* 之后可以网络直播 */
+
+    return this.description;
+  }
+}
+
+class Card_Live extends Card {
+  /* 网络直播可以轻松赚大钱捏
+  */
+  constructor() {
+    super();
+    this.name = "网络直播";
+    this.img_url = "../static/img/直播2.png";
+    this.effect = {
+      knowledge: Util.get_random_item([-1, 0, 0, 0, 0, 0, 0, 0, 0, 1]),
+      mood:      Util.get_random_item([-1, 0, 0, 0, 1]),
+      energy:    Util.get_random_item([-1, -1, -1, 0, 0, 0, 0, 0, 0, 0]),
+      money:     Util.get_random_int(4, 12),
+      health:    0,
+    };
+    this.description = "开直播赚大钱";
   }
 }
 
@@ -257,7 +341,7 @@ class Card_Be_RELX_V_Brand_Ambassador extends Card {
       knowledge: 0,
       mood:      Util.get_random_int(0, 3),
       energy:    0,
-      money:     Util.get_random_int(20, 50),
+      money:     Util.get_random_int(10, 30),
       health:    0,
     };
     this.description = "花更少钱抽电子烟";
@@ -283,7 +367,7 @@ class Card_Be_Musician extends Card {
       knowledge: 0,
       mood:      Util.get_random_int(0, 3),
       energy:    0,
-      money:     Util.get_random_int(20, 50),
+      money:     Util.get_random_int(10, 30),
       health:    0,
     };
     this.description = "签约音乐公司后可以发行专辑";
@@ -300,91 +384,169 @@ class Card_Be_Musician extends Card {
 }
 
 class Card_Album extends Card {
-  /* 发专辑赚大钱 */
+  /* 发专辑赚大钱
+  */
   constructor() {
     super();
     this.name = "发布专辑";
     this.img_url = "../static/img/高歌.png";
     this.effect = {
       knowledge: 0,
-      mood:      0,
-      energy:    0,
-      money:     Util.get_random_int(5, 25),
+      mood:      Util.get_random_item([-1, 0, 0, 0, 1]),
+      energy:    Util.get_random_item([-1, -1, -1, 0, 0, 0, 0, 0]),
+      money:     Util.get_random_int(4, 12),
       health:    0,
     };
     this.description = "发专辑赚大钱";
   }
+}
+
+class Card_Identify_True extends Card {
+  /* 一眼丁真，鉴定为真，赚点小钱
+     （知识值到达一定高度后解锁）
+  */
+  constructor() {
+    super();
+    this.name = "鉴定为真";
+    this.img_url = "../static/img/鉴定师.png";
+    this.effect = {
+      knowledge: 0,
+      mood:      Util.get_random_item([-2, -2, -1, -1, 0]),
+      energy:    Util.get_random_item([-2, -2, -1, -1, 0]),
+      money:     Util.get_random_int(2, 9),
+      health:    0,
+    };
+    this.description = "一眼丁真，鉴定为真";
+  }
+}
+
+class Card_Botanist extends Card {
+  /* 很神奇吧，卡的名字和功能一定关系都没有 */
+  constructor() {
+    super();
+    this.name = "绎演";
+    this.img_url = "../static/img/植物学家.png";
+    this.effect = {
+      knowledge: 0,
+      mood:      null,
+      energy:    null,
+      money:     -1,
+      health:    0,
+    };
+    this.description = "互换心情值和体力值";
+  }
 
   use_event(player) {
-    Card_Factory.add_normal_card_class(Card_Album);
-    Card_Factory.remove_special_card_class(Card_Be_Musician);
+    /* 使用 add 可以防止值溢出（虽然设计上心情值和体力值的上限是一样） */
+    let mood_val   = player.status.mood  .val;
+    let energy_val = player.status.energy.val;
+    player.status.mood  .val = 0;
+    player.status.energy.val = 0;
+    player.status.mood  .add(energy_val);
+    player.status.energy.add(mood_val);
+    return "互换心情值和体力值";
+  }
+}
 
-    player.achievement.is_musician = true;
-
-    return this.description;
+class Card_Speech extends Card {
+  /* 做演讲，赚大钱
+  */
+  constructor() {
+    super();
+    this.name = "演讲";
+    this.img_url = "../static/img/联合国演讲.png";
+    this.effect = {
+      knowledge: 0,
+      mood:      Util.get_random_item([0, 0, 1, 1, 2]),
+      energy:    Util.get_random_int(-2, 0),
+      money:     Util.get_random_int(20, 40),
+      health:    0,
+    };
+    this.description = "《我和我的高原朋友》";
   }
 }
 
 class Card_Factory {
   /* 普通卡 */
-  static normal_card_class_list = [
-    Card_Learn,
-    Card_Listen_To_Music,
-    Card_Play_Phone,
-    Card_Sleep,
-    Card_Smoke,
-    Card_Play_With_Snow_Leopard,
-    Card_Riding,
-    Card_Random_Event
-  ];
+  static normal_card_class_list  = [];
+  static random_card_class_list  = [];
+  static special_card_class_list = [];
 
-  /* 随机卡（由随机事件卡开出，包含部分普通卡） */
-  static random_card_class_list = [
-    Card_Learn,
-    Card_Listen_To_Music,
-    Card_Play_Phone,
-    Card_Sleep,
-    Card_Play_With_Snow_Leopard,
-    Card_Riding,
-  ];
+  static reset() {
+    /* 普通卡 */
+    Card_Factory.normal_card_class_list = [
+      Card_Listen_To_Music,
+      Card_Play_Phone,
+      Card_Sleep,
+      Card_Smoke,
+      Card_Play_With_Snow_Leopard,
+      Card_Riding,
+      Card_Random_Event,
+      /* Card_Live, 随机卡开出特殊事件卡 Card_Learned_Live 后解锁 */
+      /* Card_Album, 随机卡开出特殊事件卡 Card_Be_Musician 后解锁 */
+      /* Card_Identify_True, 知识到达一定水平后解锁*/
+    ];
 
-  /* 特殊卡（由随机事件卡开出） */
-  static special_card_class_list = [
-    Card_Be_RELX_V_Brand_Ambassador,
-    Card_Be_Musician,
-  ];
+    /* 随机卡（由随机事件卡开出，包含部分普通卡） */
+    Card_Factory.random_card_class_list = [
+      Card_Listen_To_Music,
+      Card_Play_Phone,
+      Card_Sleep,
+      Card_Play_With_Snow_Leopard,
+      Card_Riding,
+    ];
+
+    /* 特殊卡（由随机事件卡开出） */
+    Card_Factory.special_card_class_list = [
+      Card_Learn_A_Lot,
+      Card_Botanist,
+      Card_Speech,
+
+      /* 以下卡只触发一次（触发后移除） */
+      Card_Be_RELX_V_Brand_Ambassador,
+      Card_Be_Musician,
+      Card_Learned_Live,
+    ];
+  }
 
   /* 获取学习卡 */
   static get_learn_card() {
     return new Card_Learn();
   }
 
-  /* 获取普通卡（用于每回合的生成新卡） */
+  /* 获取一张普通卡 */
   static get_card() {
     return new (Util.get_random_item(Card_Factory.normal_card_class_list))();
   }
 
-  /* 获取随机卡 */
+  /* 获取一张随机卡 */
   static get_random_card() {
     return new (Util.get_random_item(Card_Factory.random_card_class_list))();
   }
   
-  /* 获取特殊卡 */
+  /* 获取一张特殊卡 */
   static get_special_card() {
     return new (Util.get_random_item(Card_Factory.special_card_class_list))();
   }
 
-  /* 添加普通卡（触发特殊事件后，可能增添新卡） */
+  /* 添加普通卡 */
   static add_normal_card_class(card_class) {
     Card_Factory.normal_card_class_list.push(card_class);
   }
   
-  /* 添加特殊卡（触发特殊事件后，可能增添新卡） */
+  /* 移除普通卡 */
+  static remove_normal_card_class(card_class) {
+    Card_Factory.normal_card_class_list = Card_Factory.normal_card_class_list.filter(
+      item => item !== card_class
+    );
+  }
+
+  /* 添加特殊卡 */
   static add_special_card_class(card_class) {
     Card_Factory.special_card_class_list.push(card_class);
   }
 
-  /* 移除特殊卡（触发特殊事件后，可能移除卡） */
+  /* 移除特殊卡 */
   static remove_special_card_class(card_class) {
     Card_Factory.special_card_class_list = Card_Factory.special_card_class_list.filter(
       item => item !== card_class
@@ -407,6 +569,10 @@ class Player {
 
   /* 重置，开始新的一局 */
   reset() {
+    let status_val_add = (status, to_add) => {
+      status.val = Math.max(0, Math.min(status.max, status.val + to_add));
+    }
+    
     /* 重置状态 */
     this.round_count  = 100;
     this.action_count = { val: 4, max: 4 };
@@ -418,19 +584,20 @@ class Player {
     }
     this.status = {
       last_learning: this.round_count,
-      knowledge : { val:  0, max: 100 },
-      mood      : { val: 10, max: 20  },
-      energy    : { val: 10, max: 20  },
-      money     : { val: 50, max: 300 },
-      health    : { val: 50, max: 100 },
-      add: (status, to_add) => { status.val = Math.max(0, Math.min(status.max, status.val + to_add)); }
+      knowledge : { val:  0, max: 100, add: (v) => {status_val_add(this.status.knowledge, v)}},
+      mood      : { val: 10, max: 20 , add: (v) => {status_val_add(this.status.mood     , v)}},
+      energy    : { val: 10, max: 20 , add: (v) => {status_val_add(this.status.energy   , v)}},
+      money     : { val: 80, max: 500, add: (v) => {status_val_add(this.status.money    , v)}},
+      health    : { val: 25, max: 30 , add: (v) => {status_val_add(this.status.health   , v)}},
     }
     this.achievement = {
-      is_RELX_V_brand_ambassador: false,
-      is_musician               : false,
+      is_RELX_V_brand_ambassador : false,
+      is_musician                : false,
+      is_appraiser               : false,
     }
 
     /* 重置卡组 */
+    Card_Factory.reset();
     this.card_group.push(Card_Factory.get_learn_card());
     this.card_group.push(Card_Factory.get_card());
     this.card_group.push(Card_Factory.get_card());
@@ -487,21 +654,11 @@ class Player {
     }
 
     /* 卡生效 */
-    this.status.knowledge.val += card.effect.knowledge;
-    this.status.mood     .val += card.effect.mood;
-    this.status.energy   .val += card.effect.energy;
-    this.status.money    .val += card.effect.money;
-    this.status.health   .val += card.effect.health;
-
-    /* 确保属性数值不越界 */
-    let ensure_in_range = (status) => {
-      if (status.max < status.val) status.val = status.max;
-      /* 不需要判断 < 0，这由 is_card_usable() 保证 */
-    }
-    ensure_in_range(this.status.knowledge);
-    ensure_in_range(this.status.mood     );
-    ensure_in_range(this.status.energy   );
-    ensure_in_range(this.status.health   );
+    this.status.knowledge.add(card.effect.knowledge);
+    this.status.mood     .add(card.effect.mood     );
+    this.status.energy   .add(card.effect.energy   );
+    this.status.money    .add(card.effect.money    );
+    this.status.health   .add(card.effect.health   );
 
     /* 扣除行动数 */
     this.action_count.val -= 1;
@@ -536,21 +693,11 @@ class Player {
     /* 不检测卡是否可用，不管是不是可用都强行使用 */
 
     /* 卡生效 */
-    this.status.knowledge.val += card.effect.knowledge;
-    this.status.mood     .val += card.effect.mood;
-    this.status.energy   .val += card.effect.energy;
-    this.status.money    .val += card.effect.money;
-    this.status.health   .val += card.effect.health;
-
-    /* 确保属性数值不越界 */
-    let ensure_in_range = (status) => {
-      if (status.max < status.val) status.val = status.max;
-      else if (status.val < 0)     status.val = 0;
-    }
-    ensure_in_range(this.status.knowledge);
-    ensure_in_range(this.status.mood     );
-    ensure_in_range(this.status.energy   );
-    ensure_in_range(this.status.health   );
+    this.status.knowledge.add(card.effect.knowledge);
+    this.status.mood     .add(card.effect.mood     );
+    this.status.energy   .add(card.effect.energy   );
+    this.status.money    .add(card.effect.money    );
+    this.status.health   .add(card.effect.health   );
 
     /* 不扣除行动数 */
 
@@ -592,26 +739,32 @@ class Player {
       random_punishment.energy = Util.get_random_item([-1, -1, 0, 0]);
     }
     /* 如果太久不学习，会随机减少知识以示惩罚 */
-    if (this.last_learning - this.round_count >= Util.get_random_item([3, 4, 4, 4, 5, 5, 6])) {
-      random_punishment.knowledge = Util.get_random_item([-2, -1, -1, -1, 0, 0]);
+    if (this.last_learning - this.round_count >= Util.get_random_item([3, 4, 4, 4, 5])) {
+      random_punishment.knowledge = Util.get_random_item([-2, -1, -1, -1, -1, 0, 0, 0]);
     }
 
     /* 实行惩罚 */
-    this.status.knowledge.val += random_punishment.knowledge;
-    this.status.mood.val      += random_punishment.mood;
-    this.status.energy.val    += random_punishment.energy;
-    let ensure_in_range = (status) => {
-      /* 确保属性数值不越界 */
-      if (status.max < status.val) status.val = status.max;
-      else if (status.val < 0)     status.val = 0;
-    }
-    ensure_in_range(this.status.knowledge);
-    ensure_in_range(this.status.mood     );
-    ensure_in_range(this.status.energy   );
+    this.status.knowledge.add(random_punishment.knowledge);
+    this.status.mood     .add(random_punishment.mood     );
+    this.status.energy   .add(random_punishment.energy   );
 
     /* 更新状态 */
     this.action_count.val = this.action_count.max;
     this.round_count -= 1;
+
+    /* 增删卡池中的卡 */
+    /* 知识到了一定水平后解锁鉴定卡 */
+    if ( ! this.achievement.is_appraiser) { if (this.status.knowledge.val >= 5) {
+        this.achievement.is_appraiser = true;
+        Card_Factory.add_normal_card_class(Card_Identify_True);
+      }
+    } else { if (this.status.knowledge.val < 5) {
+        this.achievement.is_appraiser = false;
+        Card_Factory.remove_normal_card_class(Card_Identify_True);
+      }
+    }
+
+    console.log(Card_Factory.normal_card_class_list)
 
     /* 重置学习卡 */
     if (this.card_group[0].usage_status & Card.USAGE_STATUS.used) {
@@ -658,11 +811,11 @@ class Player {
       return true;
     }
     else if (this.status.money.val >= this.status.money.max) {
-      this.set_game_outcome(true, "爆金币");
+      this.set_game_outcome(true, "爆金币咯");
       return true;
     }
     else if (this.status.health.val <= 0) {
-      this.set_game_outcome(false, "吸烟过多");
+      this.set_game_outcome(false, "吸烟过多，耗尽健康值");
       return true;
     }
 
@@ -675,7 +828,7 @@ class Player {
       return true;
     }
 
-    if (this.status.energy.val + this.status.mood.val <= 2) {
+    if (this.status.energy.val + this.status.mood.val <= 3) {
       this.set_game_outcome(false, "身心俱疲");
       return true;
     }
