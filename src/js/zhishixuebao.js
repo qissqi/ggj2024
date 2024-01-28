@@ -119,6 +119,22 @@ class Card_Smoke extends Card {
   }
 }
 
+class Card_Yiyan extends Card {
+  cardEffect(gm){
+    if(Math.random()<0.5){
+      this.img="../static/img/义眼真2.jpeg"
+      this.money=[10,20]
+      this.desc = "鉴定为真, 狠狠爆金币咯"
+    }
+    else{
+      this.img="../static/img/义眼假2.jpg"
+      this.desc = "鉴定为假, 没有米赚"
+    }
+    this.rmoney = this.generateRandomNumber(this.money)
+    return super.cardEffect(gm)
+  }
+}
+
 //听歌
 class Card_Music extends Card {
   cardEffect(gm){
@@ -289,19 +305,20 @@ class Game_Manager {
   ]
 
   // 普通卡牌
-  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-1],[-2,-1],[0],[-20,-30],[2,3])}
-  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-1],[3])}
-  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[1,3],[1,3])}
-  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[5],[-5,-7],[-10])}
-  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[2],[1])}
+  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-1,-2],[-2,-3],[0],[-20,-30],[2,3])}
+  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马, 获得别人的马内","../static/img/骑小马.png",[-2],[0],[0],[5,10])}
+  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[2,3],[1,2])}
+  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[4],[-5,-7],[-10])}
+  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0,1],[1])}
   card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
-  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[1],[1,2],[0])}
+  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[0],[1,2],[0])}
   card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的","../static/img/丁真疑惑.jpg")}
+  card_yiyan(){return new Card_Yiyan("义眼","丁真使用义眼鉴定, 说不定能获得一些金币","../static/img/义眼2.jpg",[0],[-2])}
   
   //特殊卡牌
   //多次卡牌
-  card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20])}
-  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40])}
+  card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20,30])}
+  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40,60])}
   
   //单次卡牌
   card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[100])}
@@ -310,7 +327,13 @@ class Game_Manager {
   card_signRecord (){return new Card_SignRecord("签约唱片公司","唱片公司看中了理塘王子的实力, 稀有卡牌可能出现\"发行专辑\"","../static/dz_test.jpeg")}
   card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/锐刻代言人.png")}
   
-  normalCards (){return [this.card_event(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
+  normalCards (){
+    var cards = [this.card_event(),this.card_yiyan(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_smoke(), this.card_listen_music(), this.card_play()]
+    if(Math.random()<0.7){
+      cards.push(this.card_sleep())
+    }
+    return cards
+  }
   specialCards (){
     var cards = [this.card_stream()]
     if(this.signed)
