@@ -367,6 +367,8 @@ class Game_Manager {
     this.music_list=[]
     this.music_all=[
       {name:"zood",url:"../static/audio/zood.mp3"},
+      {name:"I Got Smoke",url:"../static/audio/IGS.mp3"},
+      {name:"烟distance",url:"../static/audio/Ydistance.mp3"},
       {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
     ]
     this.webs = [
