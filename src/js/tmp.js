@@ -107,9 +107,9 @@ class Card_Listen_To_Music extends Card {
     this.img_url = "../static/img/专辑.jpg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 2]),
-      energy:    Util.get_random_item([0, 0, 0, 0, 0, 0, 0, 0, 1, 2]),
-      money:     -1,
+      mood:      Util.get_random_item([2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]),
+      energy:    Util.get_random_item([0, 0, 0, 0, 0, 0, 1, 2]),
+      money:     Util.get_random_int(-3, -1),
       health:    0,
     };
     this.description = "欣赏音乐，放松心情";
@@ -230,8 +230,8 @@ class Card_Play_With_Snow_Leopard extends Card {
     this.img_url = "../static/img/雪豹.jpeg";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 1, 1, 2, 2]),
-      energy:    Util.get_random_int(-3, 0),
+      mood:      Util.get_random_item([1, 1, 1, 1, 2, 2, 3]),
+      energy:    Util.get_random_int(-2, 0),
       money:     0,
       health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
@@ -249,8 +249,8 @@ class Card_Riding extends Card {
     this.img_url = "../static/img/骑小马.png";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([1, 1, 1, 1, 1, 2, 2]),
-      energy:    Util.get_random_int(-3, -1),
+      mood:      Util.get_random_item([1, 1, 1, 1, 1, 1, 2, 3]),
+      energy:    Util.get_random_int(-2, 0),
       money:     0,
       health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
