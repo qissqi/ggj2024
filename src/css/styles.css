@@ -147,6 +147,11 @@ body {
   transition: transform 0.18s ease;
 }
 
+#card-group .is-random-card {
+  background-color: #f9fff9;
+  outline: 1.9px solid #99aa00;
+}
+
 #card-group .is-card-usable:hover {
   transform: translateY(-30px);
   opacity: 0.9;
@@ -189,7 +194,7 @@ body {
   font-style: oblique;
 }
 
-#card-group .card .card-face-div .is-card-corner {
+#card-group .card .card-face-div .card-corner {
   background-color: #ffffff;
   position: absolute;
   top: 0;
@@ -199,7 +204,7 @@ body {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%);
 }
 
-#card-group .card .card-face-div .is-card-corner span {
+#card-group .card .card-face-div .card-corner span {
   color: #b10000;
   font-style: oblique;
 }

@@ -56,6 +56,11 @@ class Card_Learn extends Card {
     };
     this.description = "万般皆下品，唯有读书高";
   }
+
+  use_event(player) {
+    player.last_learning = player.round_count;
+    return this.description;
+  };
 }
 
 class Card_Listen_To_Music extends Card {
@@ -118,14 +123,15 @@ class Card_Sleep extends Card {
   }
 
   use_event(player) {
-    /* 在体力值较低时，如果首要行动是睡觉，有概率花费一整天的时间恢复所有体力 */
-    if (   player.status.energy.val <= player.status.energy.max / 4
+    /* 在体力值较低时，如果首要行动是睡觉，小概率会花费一整天的时间恢复所有体力 */
+    if (   player.status.energy.val <= Util.get_random_item([2, 2, 3, 3, 4])
         && player.action_count.val >= player.action_count.max - 1
-        && Util.get_random_int(0, 8) > 0
+        && Util.get_random_int(0, 2) == 0
     ) {
+      this.effect.energy = player.status.energy.max;
+      this.description = "因为太累睡昏过去了，睡了一天睡饱啦";
       player.status.energy.val = player.status.energy.max;
       player.action_count.val = 0;
-      return "因为太累睡昏过去了，睡了一整天，现在睡饱啦";
     }
 
     return this.description;
@@ -194,6 +200,19 @@ class Card_Riding extends Card {
     };
     this.description = "我的小马比赛拿过第一";
   }
+
+  use_event(player) {
+    if (Util.get_random_int(0, 10) <= 20) {
+      this.effect.money = Util.get_random_item([/*1, 1, 1, 1, 1, 1, 1, 2, 2, 2, */30000]);
+      this.description = "骑着小马外出，幸运地捡到了金币";
+
+      player.status.money.val += this.effect.money;
+      if (player.status.money.val > player.status.money.max) {
+        player.status.money.val = player.status.money.max;
+      }
+    }
+    return this.description;
+  }
 }
 
 class Card_Random_Event extends Card {
@@ -216,10 +235,11 @@ class Card_Random_Event extends Card {
 
   use_event(player) {
     let self_idx = player.card_group.findIndex(card => card === this);
-    let new_card = (Util.get_random_int(0, 8) > 0)
-        ? Card_Factory.get_random_card()
-        : Card_Factory.get_special_card(); /* 有一定概率变为特殊卡，触发特殊事件 */
+    let new_card = (Util.get_random_int(0, 8) <= 2)
+        ? Card_Factory.get_special_card() /* 有一定概率变为特殊卡，触发特殊事件 */
+        : Card_Factory.get_random_card();
 
+    new_card.usage_status |= Card.USAGE_STATUS.random;
     player.card_group[self_idx] = new_card;
 
     return player.force_use_card(new_card).txt;
@@ -237,7 +257,7 @@ class Card_Be_RELX_V_Brand_Ambassador extends Card {
       knowledge: 0,
       mood:      Util.get_random_int(0, 3),
       energy:    0,
-      money:     Util.get_random_int(0, 20),
+      money:     Util.get_random_int(20, 50),
       health:    0,
     };
     this.description = "花更少钱抽电子烟";
@@ -263,7 +283,7 @@ class Card_Be_Musician extends Card {
       knowledge: 0,
       mood:      Util.get_random_int(0, 3),
       energy:    0,
-      money:     Util.get_random_int(0, 20),
+      money:     Util.get_random_int(20, 50),
       health:    0,
     };
     this.description = "签约音乐公司后可以发行专辑";
@@ -271,7 +291,7 @@ class Card_Be_Musician extends Card {
   
   use_event(player) {
     Card_Factory.remove_special_card_class(Card_Be_Musician);
-    Card_Factory.add_normal_card_class(Card_Album);
+    Card_Factory.add_normal_card_class(Card_Album); /* 之后可以发行专辑 */
 
     player.achievement.is_musician = true;
 
@@ -289,7 +309,7 @@ class Card_Album extends Card {
       knowledge: 0,
       mood:      0,
       energy:    0,
-      money:     Util.get_random_int(10, 30),
+      money:     Util.get_random_int(5, 25),
       health:    0,
     };
     this.description = "发专辑赚大钱";
@@ -388,25 +408,26 @@ class Player {
   /* 重置，开始新的一局 */
   reset() {
     /* 重置状态 */
+    this.round_count  = 100;
+    this.action_count = { val: 4, max: 4 };
+    this.card_group   = [];
+    this.game_outcome = {
+      is_over   : false,
+      is_winner : false,
+      text      : "",
+    }
     this.status = {
-      knowledge : { val:  0, max: 100  },
-      mood      : { val: 10, max: 20   },
-      energy    : { val: 10, max: 20   },
-      money     : { val: 50, max: 300  },
-      health    : { val: 50, max: 100  },
+      last_learning: this.round_count,
+      knowledge : { val:  0, max: 100 },
+      mood      : { val: 10, max: 20  },
+      energy    : { val: 10, max: 20  },
+      money     : { val: 50, max: 300 },
+      health    : { val: 50, max: 100 },
+      add: (status, to_add) => { status.val = Math.max(0, Math.min(status.max, status.val + to_add)); }
     }
     this.achievement = {
       is_RELX_V_brand_ambassador: false,
       is_musician               : false,
-    }
-    this.round_count   = 150;
-    this.action_count  = { val: 4, max: 4 };
-    this.card_group    = [];
-    this.keep_card_idx = null;
-    this.game_outcome  = {
-      is_over   : false,
-      is_winner : false,
-      text      : "",
     }
 
     /* 重置卡组 */
@@ -498,6 +519,9 @@ class Player {
 
     /* 判断游戏结束（在扣除行动数后执行，因为判断结局与行动数有关） */
     this.judge_game_over_after_card();
+    if (this.action_count.val == 0) {
+      this.judge_game_over_before_next();
+    }
 
     return new ValTxt(true, result_text);
   }
@@ -542,10 +566,12 @@ class Player {
 
   /* 开启下一回合（可选一张未使用过的卡以保留） return ValTxt(bool, ) */
   next_round(keep_card_idx=null) {
-    if (this.is_game_over()) {
-      return new ValTxt(false, "游戏结束");
+    /* 下一回合前，先判断游戏是否结束（这里也要判断是因为，有可能本回合没出过卡就跳下一回合） */
+    if (true == this.judge_game_over_before_next()) {
+      return new ValTxt(false, this.game_outcome.text);
     }
 
+    /* 判断保留卡 */
     if (null != keep_card_idx) {
       if (0 == keep_card_idx) {
         return new ValTxt(false, "无须继承固定的学习卡");
@@ -555,17 +581,33 @@ class Player {
       }
     }
 
-    /* 如果未耗尽行动数则结束本回合，则会随机做出惩罚，减少心情和体力 */
+    /* 如果行动数未耗尽就结束本回合，会随机减少心情和体力以示惩罚 */
+    let random_punishment = { knowledge: 0, mood: 0, energy: 0 }
     if (this.action_count.val == 1) {
-      this.status.mood.val   -= Util.get_random_item([0, 0, 1, 1, 2]);
-      this.status.energy.val -= Util.get_random_item([0, 0, 0, 1, 1]);
+      random_punishment.mood   = Util.get_random_item([-2, -1, -1, 0, 0]);
+      random_punishment.energy = Util.get_random_item([-1, -1, 0, 0, 0]);
     }
     else if (this.action_count.val > 1) {
-      this.status.mood.val   -= Util.get_random_item([0, 1, 2, 2]);
-      this.status.energy.val -= Util.get_random_item([0, 0, 1, 1]);
+      random_punishment.mood   = Util.get_random_item([-2, -2, -1, 0]);
+      random_punishment.energy = Util.get_random_item([-1, -1, 0, 0]);
     }
-    this.status.mood.val   = Math.max(0, this.status.mood.val  );
-    this.status.energy.val = Math.max(0, this.status.energy.val);
+    /* 如果太久不学习，会随机减少知识以示惩罚 */
+    if (this.last_learning - this.round_count >= Util.get_random_item([3, 4, 4, 4, 5, 5, 6])) {
+      random_punishment.knowledge = Util.get_random_item([-2, -1, -1, -1, 0, 0]);
+    }
+
+    /* 实行惩罚 */
+    this.status.knowledge.val += random_punishment.knowledge;
+    this.status.mood.val      += random_punishment.mood;
+    this.status.energy.val    += random_punishment.energy;
+    let ensure_in_range = (status) => {
+      /* 确保属性数值不越界 */
+      if (status.max < status.val) status.val = status.max;
+      else if (status.val < 0)     status.val = 0;
+    }
+    ensure_in_range(this.status.knowledge);
+    ensure_in_range(this.status.mood     );
+    ensure_in_range(this.status.energy   );
 
     /* 更新状态 */
     this.action_count.val = this.action_count.max;
@@ -583,58 +625,77 @@ class Player {
     }
     this.update_card_usage_status();
 
-    return new ValTxt(true);
+    let return_text = "新的一天开始了，今天要好好努力" +
+      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空" : "") +
+      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了" : "") + 
+      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢" : "");
+
+    return new ValTxt(true, return_text);
   }
 
-  /* 判断游戏是否结束 return bool */
+  /* 判断游戏是否已经结束 return bool */
   is_game_over() {
-    if (this.action_count.val == this.action_count.max) {
-      /* 没出过卡，说明是直接跳过本回合 */
-      this.action_count.val = 0; /* 模拟出卡 */
-      this.judge_game_over_after_card();
-      this.action_count.val = this.action_count.max; /* 恢复 */
-    }
-  
-    /* 已经出过卡，每次出卡后都有判断过游戏结束 */
     return this.game_outcome.is_over;
+  }
+
+  /* 设置游戏结局 */
+  set_game_outcome = (is_winner, text) => {
+    this.game_outcome = {
+      is_over   : true,
+      is_winner : is_winner,
+      text      : `游戏结束 [${is_winner ? '胜利' : '失败'}] ${text}`,
+    }
   }
 
   /* 判断游戏是否结束（仅用于出卡后的判断） */
   judge_game_over_after_card() {
-
-    let set_game_outcome = (is_winner, text) => {
-      this.game_outcome = {
-        is_over   : true,
-        is_winner : is_winner,
-        text      : text,
-      }
+    if (this.is_game_over()) {
+      return true;
     }
 
-    if (this.status.knowledge.val > this.status.knowledge.max) {
-      set_game_outcome(true, "知识学爆");
+    if (this.status.knowledge.val >= this.status.knowledge.max) {
+      this.set_game_outcome(true, "知识学爆");
+      return true;
     }
-    else if (this.status.money.val > this.status.money.max) {
-      set_game_outcome(true, "爆金币");
+    else if (this.status.money.val >= this.status.money.max) {
+      this.set_game_outcome(true, "爆金币");
+      return true;
     }
     else if (this.status.health.val <= 0) {
-      set_game_outcome(false, "吸烟过多");
+      this.set_game_outcome(false, "吸烟过多");
+      return true;
     }
-    else if (this.action_count.val == 0) {
-      if (this.status.energy.val + this.status.mood.val <= 2) {
-        set_game_outcome(false, "身心俱疲");
-      }
-      else if (this.status.energy.val == 0) {
-        set_game_outcome(false, "体力不支");
-      }
-      else if (this.status.mood.val == 0) {
-        set_game_outcome(false, "心情抑郁");
-      }
-      else if (this.status.money.val <= 3) {
-        set_game_outcome(false, "穷困潦倒");
-      }
-      else if (this.action_count <= 0) {
-        set_game_outcome(false, "时间耗尽");
-      }
+
+    return false;
+  }
+
+  /* 判断游戏是否结束（仅用于开启下一轮前的判断） */
+  judge_game_over_before_next() {
+    if (this.is_game_over()) {
+      return true;
     }
+
+    if (this.status.energy.val + this.status.mood.val <= 2) {
+      this.set_game_outcome(false, "身心俱疲");
+      return true;
+    }
+    else if (this.status.energy.val == 0) {
+      this.set_game_outcome(false, "体力不支");
+      return true;
+    }
+    else if (this.status.mood.val == 0) {
+      this.set_game_outcome(false, "心情抑郁");
+      return true;
+    }
+    else if (this.status.money.val <= 3) {
+      this.set_game_outcome(false, "穷困潦倒");
+      return true;
+    }
+    else if (this.action_count <= 0) {
+      this.set_game_outcome(false, "时间耗尽");
+      return true;
+    }
+
+    return false;
   }
 }

@@ -28,7 +28,7 @@
               <tr>
                 <td class="status-emoji"><span>🎓</span></td>
                 <td class="status-name"><span>知识</span></td>
-                <td class="status-value"><span>{{ Math.min(gm.player.knowledge + hover_card_effect.knowledge, gm.player.maxKnowledge) }} / {{ gm.player.maxKnowledge }}</span></td>
+                <td class="status-value"><span>{{ Math.max(0, Math.min(gm.player.knowledge + hover_card_effect.knowledge, gm.player.maxKnowledge)) }} / {{ gm.player.maxKnowledge }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.knowledge + hover_card_effect.knowledge,gm.player.maxKnowledge)"><br></div>
                 </td>
@@ -36,7 +36,7 @@
               <tr>
                 <td class="status-emoji"><span>😆</span></td>
                 <td class="status-name"><span>心情</span></td>
-                <td class="status-value"><span>{{ Math.min(gm.player.mood + hover_card_effect.mood, gm.player.maxMood) }} / {{ gm.player.maxMood }}</span></td>
+                <td class="status-value"><span>{{ Math.max(0, Math.min(gm.player.mood + hover_card_effect.mood, gm.player.maxMood)) }} / {{ gm.player.maxMood }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.mood + hover_card_effect.mood,gm.player.maxMood)"><br></div>
                 </td>
@@ -44,7 +44,7 @@
               <tr>
                 <td class="status-emoji"><span>💪</span></td>
                 <td class="status-name"><span>体力</span></td>
-                <td class="status-value"><span>{{ Math.min(gm.player.energy + hover_card_effect.energy, gm.player.maxEnergy) }} / {{ gm.player.maxEnergy }}</span></td>
+                <td class="status-value"><span>{{ Math.max(0, Math.min(gm.player.energy + hover_card_effect.energy, gm.player.maxEnergy)) }} / {{ gm.player.maxEnergy }}</span></td>
                 <td class="status-bar" colspan="3">
                   <div class="progress-bar" :style="progress_bar_style(gm.player.energy + hover_card_effect.energy,gm.player.maxEnergy)"><br></div>
                 </td>
@@ -105,7 +105,7 @@
           <div class="card-face-div">
             <img class="card-img" :src="card.img" draggable="false">
             <div class="card-name"><span>{{ card.name }}</span></div>
-            <div class="is-card-corner">
+            <div class="card-corner">
               <span v-if="gm.myCards[index].used">已使用</span>
               <span v-else-if="!gm.checkCardAvailable(index)">不可用</span>
             </div>
@@ -267,21 +267,7 @@
       },
 
       hover_card(card) {
-        console.log(card)
-        if (card == null) {
-          this.hover_card_effect.knowledge = 0;
-          this.hover_card_effect.mood      = 0;
-          this.hover_card_effect.energy    = 0;
-          this.hover_card_effect.money     = 0;
-          return;
-        }
-        else if (card.used == false){
-          this.hover_card_effect.knowledge = card.rknowledge;
-          this.hover_card_effect.mood      = card.rmood;
-          this.hover_card_effect.energy    = card.renergy;
-          this.hover_card_effect.money     = card.rmoney;
-        }
-        console.log(card)
+
       },
 
       /* 计算进度条 */
