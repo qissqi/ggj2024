@@ -341,7 +341,16 @@
       },
 
       nextDay(){
-        if(!gm.endDay()&&gm.endingDay){
+        var endDay = gm.endDay()
+        if(gm.ending>0 && !this.isEnd){
+          this.print("")
+          this.print(`结局 ${gm.ending}`)
+          this.print(gm.end)
+          this.print("")
+          this.isEnd=true
+          return
+        }
+        if(!endDay&&gm.endingDay){
           this.print("")
           this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
           this.print("")

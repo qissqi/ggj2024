@@ -383,7 +383,7 @@ class Game_Manager {
     this.myCards = this.getCards(5)
 
     this.checkState()
-    this.checkEnding()
+    
   }
 
   checkState(){
@@ -401,6 +401,10 @@ class Game_Manager {
       this.end = "丁真努力学习成为了最出色的小镇做题家"
       this.portrait = "../static/img/知识学爆1.png"
     }
+    
+  }
+
+  checkFailEnding(){
     if(this.player.health<=0){
       this.ending=2
       this.end = "丁真电子烟成瘾, 肺部产生病变, 一天不抽肺痒痒"
@@ -534,6 +538,7 @@ class Game_Manager {
       this.newDay()
       return
     }
+    this.checkFailEnding()
     var leftCards = this.myCards.filter(c=>!c.used)
     
     if(leftCards.length == 0)
