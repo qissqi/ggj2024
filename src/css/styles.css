@@ -17,7 +17,6 @@ body {
   height: 100%;
   
   font-family: "黑体";
-  color: #ff0000;
   font-size: var(--font-size);
 }
 
@@ -247,6 +246,7 @@ body {
 #card-group .card .card-effect-table .card-effect span {
   padding-left: 12px;
   font-size: 0.9em;
+  color: #f00;
 }
 
 #card-group .card hr { margin: 3px; }
@@ -255,4 +255,5 @@ body {
   margin-top: 1px;
   font-size: 0.9em;
   font-style: italic;
+  color: #f00;
 }

@@ -62,6 +62,40 @@ class Card_Learn extends Card {
   };
 }
 
+class Card_Random_Learn extends Card {
+  /* 随机学点东西，可能学不进什么东西
+    （知识值到达一定高度后解锁）
+  */
+  constructor() {
+    super();
+    this.name = "学知识";
+    this.img_url = "../static/img/知识学爆2.jpg";
+    this.effect = {
+      knowledge: null,
+      mood:      Util.get_random_item([-2, -1, -1]),
+      energy:    Util.get_random_item([-2, -1, -1, -1]),
+      money:     Util.get_random_item([-2,-1, -1, -1]),
+      health:    0,
+    };
+    this.description = "万般皆下品，唯有读书高";
+  }
+
+  use_event(player) {
+    if (Util.get_random_int(0, 5) <= 1) {
+      this.effect.knowledge = Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]);
+
+      player.status.knowledge.val += this.effect.knowledge;
+      player.last_learning = player.round_count;
+    }
+    else {
+      this.effect.knowledge = 0;
+      this.description = "什么也没学到";
+    }
+
+    return this.description;
+  };
+}
+
 class Card_Listen_To_Music extends Card {
   /* 听音乐可以放松身心，让心情变得舒畅，也可能会恢复体力哦
      要消耗金钱购买音乐
@@ -224,7 +258,7 @@ class Card_Riding extends Card {
 
   use_event(player) {
     if (Util.get_random_int(0, 6) <= 1) {
-      this.effect.money = Util.get_random_item([1, 1, 1, 1, 1, 2, 2, 3, 4]);
+      this.effect.money = Util.get_random_int(1, 8);
       this.description = "骑着小马外出，幸运地捡到了金币";
 
       player.status.money.add(this.effect.money);
@@ -234,7 +268,7 @@ class Card_Riding extends Card {
 }
 
 class Card_Random_Event extends Card {
-  /* 执行随机事件，可能是好事，也可能是坏事
+  /* 执行随机事件
   */
   constructor() {
     super();
@@ -253,7 +287,7 @@ class Card_Random_Event extends Card {
 
   use_event(player) {
     let self_idx = player.card_group.findIndex(card => card === this);
-    let new_card = (Util.get_random_int(0, 8) <= 1)
+    let new_card = (Util.get_random_int(0, 6) <= 1)
         ? Card_Factory.get_special_card() /* 有一定概率变为特殊卡，触发特殊事件 */
         : Card_Factory.get_random_card();
 
@@ -458,8 +492,8 @@ class Card_Speech extends Card {
     this.effect = {
       knowledge: 0,
       mood:      Util.get_random_item([0, 0, 1, 1, 2]),
-      energy:    Util.get_random_int(-2, 0),
-      money:     Util.get_random_int(20, 40),
+      energy:    Util.get_random_int(-1, 0),
+      money:     Util.get_random_int(20, 60),
       health:    0,
     };
     this.description = "《我和我的高原朋友》";
@@ -484,10 +518,11 @@ class Card_Factory {
       Card_Random_Event,
       /* Card_Live, 随机卡开出特殊事件卡 Card_Learned_Live 后解锁 */
       /* Card_Album, 随机卡开出特殊事件卡 Card_Be_Musician 后解锁 */
-      /* Card_Identify_True, 知识到达一定水平后解锁*/
+      /* Card_Identify_True, 知识到达一定水平后解锁 */
+      /* Card_Random_Learn,  知识到达一定水平后解锁 */
     ];
 
-    /* 随机卡（由随机事件卡开出，包含部分普通卡） */
+    /* 随机卡（由随机事件卡开出） */
     Card_Factory.random_card_class_list = [
       Card_Listen_To_Music,
       Card_Play_Phone,
@@ -752,15 +787,16 @@ class Player {
     this.action_count.val = this.action_count.max;
     this.round_count -= 1;
 
-    /* 增删卡池中的卡 */
-    /* 知识到了一定水平后解锁鉴定卡 */
+    /* 增删卡池中的卡，知识到了一定水平后解锁 */
     if ( ! this.achievement.is_appraiser) { if (this.status.knowledge.val >= 5) {
         this.achievement.is_appraiser = true;
         Card_Factory.add_normal_card_class(Card_Identify_True);
+        Card_Factory.add_normal_card_class(Card_Random_Learn); /* 本来设计只加鉴定卡，现在多加一个随机学习卡 */
       }
     } else { if (this.status.knowledge.val < 5) {
         this.achievement.is_appraiser = false;
         Card_Factory.remove_normal_card_class(Card_Identify_True);
+        Card_Factory.remove_normal_card_class(Card_Random_Learn);
       }
     }
 
