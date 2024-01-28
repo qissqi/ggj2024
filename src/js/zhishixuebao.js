@@ -199,7 +199,7 @@ class Card_Event extends Card {
 
   }
   cardEffect(gm){
-    if(Math.random() < 0.6){
+    if(Math.random() < 0.3){
       var ncs = gm.normalCards()
       var nc = ncs[Math.floor(Math.random() * (ncs.length-1) + 1)]
       nc.used=true
@@ -301,6 +301,8 @@ class Game_Manager {
   music_list=[]
   music_all=[
     {name:"zood",url:"../static/audio/zood.mp3"},
+    {name:"I Got Smoke",url:"../static/audio/IGS.mp3"},
+    {name:"烟distance",url:"../static/audio/Ydistance.mp3"},
     {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
   ]
 
@@ -312,13 +314,13 @@ class Game_Manager {
   card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0,1],[1])}
   card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
   card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[0],[1,2],[0])}
-  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的","../static/img/丁真疑惑.jpg")}
+  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的, 说不定会出现更好的事情","../static/img/丁真疑惑.jpg")}
   card_yiyan(){return new Card_Yiyan("义眼","丁真使用义眼鉴定, 说不定能获得一些金币","../static/img/义眼2.jpg",[0],[-2])}
   
   //特殊卡牌
   //多次卡牌
   card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20,30])}
-  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40,60])}
+  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发, 听歌时可能会听到新的金曲","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40,60])}
   
   //单次卡牌
   card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[100])}
@@ -369,6 +371,7 @@ class Game_Manager {
     ]
     this.webs = [
       "https://www.bilibili.com/video/BV1GJ411x7h7",
+      "https://space.bilibili.com/1265680561",
       "https://ys.mihoyo.com/main/",
     ]
     
