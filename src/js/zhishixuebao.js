@@ -183,6 +183,9 @@ class Card_Phone extends Card {
       return super.cardEffect(gm)
     var r = Math.floor(Math.random() * gm.webs.length)
     var web = gm.webs[r]
+    if(web == "https://www.bilibili.com/video/BV1nY411N7HZ"){
+      this.desc = "关注szdxdxdx, 关注素质低下地下洞穴谢谢喵"
+    }
     gm.webs.splice(r,1)
     window.open(web, '_blank');
     return super.cardEffect(gm)
