@@ -72,9 +72,9 @@ class Card_Random_Learn extends Card {
     this.img_url = "../static/img/知识学爆2.jpg";
     this.effect = {
       knowledge: null,
-      mood:      Util.get_random_item([-2, -1, -1]),
+      mood:      Util.get_random_item([-2, -1, -1, -1]),
       energy:    Util.get_random_item([-2, -1, -1, -1]),
-      money:     Util.get_random_item([-2,-1, -1, -1]),
+      money:     Util.get_random_item([-2, -1, -1, -1]),
       health:    0,
     };
     this.description = "万般皆下品，唯有读书高";
@@ -82,10 +82,11 @@ class Card_Random_Learn extends Card {
 
   use_event(player) {
     if (Util.get_random_int(0, 5) <= 1) {
-      this.effect.knowledge = Util.get_random_item([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]);
+      this.effect.knowledge = Util.get_random_item([1, 1, 1, 1, 2]);
 
       player.status.knowledge.val += this.effect.knowledge;
       player.last_learning = player.round_count;
+      this.description = "学到啦";
     }
     else {
       this.effect.knowledge = 0;
