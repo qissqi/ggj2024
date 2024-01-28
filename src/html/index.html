@@ -267,7 +267,21 @@
       },
 
       hover_card(card) {
-
+        console.log(card)
+        if (card == null) {
+          this.hover_card_effect.knowledge = 0;
+          this.hover_card_effect.mood      = 0;
+          this.hover_card_effect.energy    = 0;
+          this.hover_card_effect.money     = 0;
+          return;
+        }
+        if (!card.used && gm.checkCard(card)){
+          this.hover_card_effect.knowledge = card.rknowledge;
+          this.hover_card_effect.mood      = card.rmood;
+          this.hover_card_effect.energy    = card.renergy;
+          this.hover_card_effect.money     = card.rmoney;
+        }
+        console.log(card)
       },
 
       /* 计算进度条 */
@@ -302,32 +316,41 @@
       /* 点击卡牌 */
       click_card(index) {
         if(this.gm.checkCardAvailable(index)){
+          
+          gm.useCard(index);
           var text =  this.gm.cardDesc(index)
           if(text!=null){
             this.print("")
             this.print(text)
           }
+          this.hover_card(null);
+          console.log(gm.ending,this.isEnd)
+          if(gm.ending>0 && !this.isEnd){
+            this.print("")
+            this.print(`结局 ${gm.ending}`)
+            this.print(gm.end)
+            this.print("")
+            this.isEnd=true
+          }
         }
+      },
 
-        gm.useCard(index);
-        this.hover_card(null);
-        console.log(gm.ending,this.isEnd)
+      getGM(){
+        return gm;
+        this.isEnd=false;
+      },
+
+      nextDay(){
+        var endDay = gm.endDay()
         if(gm.ending>0 && !this.isEnd){
           this.print("")
           this.print(`结局 ${gm.ending}`)
           this.print(gm.end)
           this.print("")
           this.isEnd=true
+          return
         }
-      },
-
-      getGM(){
-        return gm;
-        isEnd=false;
-      },
-
-      nextDay(){
-        if(!gm.endDay()&&gm.endingDay){
+        if(!endDay&&gm.endingDay){
           this.print("")
           this.print("从剩余的随机卡中选择一张保留，再次点击下一天则不保留卡牌")
           this.print("")
@@ -336,8 +359,8 @@
       },
 
       reset(){
-        this.gm.init()
         this.gm.stopPlayAudio()
+        this.gm.init()
         this.output.text_list = [
             "目标：",
             "用最少的天数, 让“知识”进度条达到100%",

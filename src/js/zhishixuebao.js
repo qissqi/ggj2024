@@ -109,6 +109,22 @@ class Card {
 
 }
 
+//睡觉
+class Card_Sleep extends Card {
+  cardEffect(gm){
+    if(gm.player.actionPoint == 3){
+      if(gm.player.energy < 3){
+        if(Math.random()<0.5){
+          this.renergy = 20
+          this.desc = "丁真因压力太大赖床不起, 睡了一天终于睡饱了"
+          gm.player.actionPoint=0
+        }
+      }
+    }
+    return super.cardEffect(gm)
+  }
+}
+
 //抽烟
 class Card_Smoke extends Card {
   checkAvailable(gm){
@@ -116,6 +132,23 @@ class Card_Smoke extends Card {
       this.rmoney = 0
     }
     return super.checkAvailable(gm)
+  }
+}
+
+//义眼
+class Card_Yiyan extends Card {
+  cardEffect(gm){
+    if(Math.random()<0.5){
+      this.img="../static/img/义眼真2.jpeg"
+      this.money=[10,20]
+      this.desc = "鉴定为真, 狠狠爆金币咯"
+    }
+    else{
+      this.img="../static/img/义眼假2.jpg"
+      this.desc = "鉴定为假, 没有米赚"
+    }
+    this.rmoney = this.generateRandomNumber(this.money)
+    return super.cardEffect(gm)
   }
 }
 
@@ -167,6 +200,9 @@ class Card_Phone extends Card {
       return super.cardEffect(gm)
     var r = Math.floor(Math.random() * gm.webs.length)
     var web = gm.webs[r]
+    if(web == "https://www.bilibili.com/video/BV1nY411N7HZ"){
+      this.desc = "关注szdxdxdx, 关注素质低下地下洞穴谢谢喵"
+    }
     gm.webs.splice(r,1)
     window.open(web, '_blank');
     return super.cardEffect(gm)
@@ -183,7 +219,7 @@ class Card_Event extends Card {
 
   }
   cardEffect(gm){
-    if(Math.random() < 0.6){
+    if(Math.random() < 0.3){
       var ncs = gm.normalCards()
       var nc = ncs[Math.floor(Math.random() * (ncs.length-1) + 1)]
       nc.used=true
@@ -285,23 +321,26 @@ class Game_Manager {
   music_list=[]
   music_all=[
     {name:"zood",url:"../static/audio/zood.mp3"},
+    {name:"I Got Smoke",url:"../static/audio/IGS.mp3"},
+    {name:"烟distance",url:"../static/audio/Ydistance.mp3"},
     {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
   ]
 
   // 普通卡牌
-  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-2,-1],[-2,-1],[0],[-20,-30],[2,3])}
-  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马","../static/img/骑小马.png",[-1],[3])}
-  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[1,3],[1,3])}
-  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[5],[-5,-7],[-10])}
-  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[2],[1])}
-  card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
-  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[1],[1,2],[0])}
-  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的","../static/img/丁真疑惑.jpg")}
+  card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-1,-2],[-2,-3],[0],[-20,-30],[2,3])}
+  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处策其他人的马, 获得一点马内","../static/img/骑小马.png",[-1],[1],[0],[5,10])}
+  card_sleep(){return new Card_Sleep("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[3,4],[0])}
+  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[2],[4],[-5],[-20])}
+  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0],[1])}
+  card_play(){return new Card("陪雪豹玩耍","丁真外出和动物朋友玩耍, 让肺部流进新鲜空气","../static/img/雪豹.jpeg",[-1, 0],[1,2],[1,2])}
+  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[1],[1,2],[0],[-10,0])}
+  card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的, 说不定会出现更好的事情","../static/img/丁真疑惑.jpg")}
+  card_yiyan(){return new Card_Yiyan("义眼","丁真使用义眼鉴定, 说不定能获得一些金币","../static/img/义眼2.jpg",[0],[-2])}
   
   //特殊卡牌
   //多次卡牌
-  card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20])}
-  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40])}
+  card_stream (){return new Card("直播","丁真开始练习藏话","../static/img/直播1.png",[-2],[-1],[0],[20,30])}
+  card_album(){return new Card_Album("发行专辑","丁真向着格莱美进发, 听歌时可能会听到新的金曲","../static/img/唱歌.jpeg",[-1,-2],[-1],[0],[40,60])}
   
   //单次卡牌
   card_speak (){return new Card_Speak("联合国演讲","丁真在粘合国上为动物朋友演讲","../static/img/联合国演讲.png",[-3],[-3],[0],[100])}
@@ -310,7 +349,16 @@ class Game_Manager {
   card_signRecord (){return new Card_SignRecord("签约唱片公司","唱片公司看中了理塘王子的实力, 稀有卡牌可能出现\"发行专辑\"","../static/dz_test.jpeg")}
   card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/锐刻代言人.png")}
   
-  normalCards (){return [this.card_event(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_sleep(), this.card_smoke(), this.card_listen_music(), this.card_play()]}
+  normalCards (){
+    var cards = [this.card_event(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_smoke(), this.card_listen_music(), this.card_play()]
+    if(Math.random()<0.8){
+      cards.push(this.card_sleep())
+    }
+    if(this.player.knowledge >= 10){
+      cards.push(this.card_yiyan())
+    }
+    return cards
+  }
   specialCards (){
     var cards = [this.card_stream()]
     if(this.signed)
@@ -342,10 +390,14 @@ class Game_Manager {
     this.music_list=[]
     this.music_all=[
       {name:"zood",url:"../static/audio/zood.mp3"},
+      {name:"I Got Smoke",url:"../static/audio/IGS.mp3"},
+      {name:"烟distance",url:"../static/audio/Ydistance.mp3"},
       {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
     ]
     this.webs = [
       "https://www.bilibili.com/video/BV1GJ411x7h7",
+      "https://space.bilibili.com/1265680561",
+      "https://www.bilibili.com/video/BV1nY411N7HZ",
       "https://ys.mihoyo.com/main/",
     ]
     
@@ -360,7 +412,7 @@ class Game_Manager {
     this.myCards = this.getCards(5)
 
     this.checkState()
-    this.checkEnding()
+    
   }
 
   checkState(){
@@ -378,6 +430,10 @@ class Game_Manager {
       this.end = "丁真努力学习成为了最出色的小镇做题家"
       this.portrait = "../static/img/知识学爆1.png"
     }
+    
+  }
+
+  checkFailEnding(){
     if(this.player.health<=0){
       this.ending=2
       this.end = "丁真电子烟成瘾, 肺部产生病变, 一天不抽肺痒痒"
@@ -404,6 +460,10 @@ class Game_Manager {
   
   checkCardAvailable(index) {
     var card = this.myCards[index]
+    return this.checkCard(card)
+  }
+
+  checkCard(card){
     if(this.ending){
       card.usage_status = 1
       return false
@@ -511,7 +571,14 @@ class Game_Manager {
       this.newDay()
       return
     }
+    this.checkFailEnding()
     var leftCards = this.myCards.filter(c=>!c.used)
+    if(this.ending>0){
+      leftCards.forEach(c => {
+        c.keep=true
+      });
+      return
+    }
     
     if(leftCards.length == 0)
     {
