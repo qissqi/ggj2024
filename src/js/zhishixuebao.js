@@ -540,6 +540,12 @@ class Game_Manager {
     }
     this.checkFailEnding()
     var leftCards = this.myCards.filter(c=>!c.used)
+    if(this.ending>0){
+      leftCards.forEach(c => {
+        c.keep=true
+      });
+      return
+    }
     
     if(leftCards.length == 0)
     {
