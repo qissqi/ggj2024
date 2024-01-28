@@ -374,6 +374,7 @@ class Game_Manager {
     this.webs = [
       "https://www.bilibili.com/video/BV1GJ411x7h7",
       "https://space.bilibili.com/1265680561",
+      "https://www.bilibili.com/video/BV1nY411N7HZ",
       "https://ys.mihoyo.com/main/",
     ]
     
