@@ -316,22 +316,22 @@
       /* 点击卡牌 */
       click_card(index) {
         if(this.gm.checkCardAvailable(index)){
+          
+          gm.useCard(index);
           var text =  this.gm.cardDesc(index)
           if(text!=null){
             this.print("")
             this.print(text)
           }
-        }
-
-        gm.useCard(index);
-        this.hover_card(null);
-        console.log(gm.ending,this.isEnd)
-        if(gm.ending>0 && !this.isEnd){
-          this.print("")
-          this.print(`结局 ${gm.ending}`)
-          this.print(gm.end)
-          this.print("")
-          this.isEnd=true
+          this.hover_card(null);
+          console.log(gm.ending,this.isEnd)
+          if(gm.ending>0 && !this.isEnd){
+            this.print("")
+            this.print(`结局 ${gm.ending}`)
+            this.print(gm.end)
+            this.print("")
+            this.isEnd=true
+          }
         }
       },
 

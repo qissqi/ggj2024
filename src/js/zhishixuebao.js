@@ -109,6 +109,22 @@ class Card {
 
 }
 
+//睡觉
+class Card_Sleep extends Card {
+  cardEffect(gm){
+    if(gm.player.actionPoint == 3){
+      if(gm.player.energy < 3){
+        if(Math.random()<0.5){
+          this.renergy = 20
+          this.desc = "丁真因压力太大赖床不起, 睡了一天终于睡饱了"
+          gm.player.actionPoint=0
+        }
+      }
+    }
+    return super.cardEffect(gm)
+  }
+}
+
 //抽烟
 class Card_Smoke extends Card {
   checkAvailable(gm){
@@ -119,6 +135,7 @@ class Card_Smoke extends Card {
   }
 }
 
+//义眼
 class Card_Yiyan extends Card {
   cardEffect(gm){
     if(Math.random()<0.5){
@@ -311,12 +328,12 @@ class Game_Manager {
 
   // 普通卡牌
   card_learn(){return new Card("学知识","丁真努力学习","../static/img/知识学爆2.jpg",[-1,-2],[-2,-3],[0],[-20,-30],[2,3])}
-  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处测其他人的马, 获得别人的马内","../static/img/骑小马.png",[-2],[0],[0],[5,10])}
-  card_sleep(){return new Card("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[2,3],[1,2])}
-  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[1],[4],[-5,-7],[-10])}
-  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0,1],[1])}
-  card_play(){return new Card("陪雪豹玩耍","丁真愉快地和动物朋友玩耍","../static/img/雪豹.jpeg",[-1],[2])}
-  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[0],[1,2],[0])}
+  card_ride(){return new Card("骑小马","丁真骑着小马珍珠到处策其他人的马, 获得一点马内","../static/img/骑小马.png",[-1],[1],[0],[5,10])}
+  card_sleep(){return new Card_Sleep("睡大觉","丁真开始睡dajiao","../static/dz_test.jpeg",[3,4],[0])}
+  card_smoke(){return new Card_Smoke("抽电子烟","丁真开始吞云吐雾","../static/img/电子烟.png",[2],[4],[-5],[-20])}
+  card_listen_music(){return new Card_Music("听歌","丁真开始听理塘金曲","../static/img/专辑.jpg",[0],[1])}
+  card_play(){return new Card("陪雪豹玩耍","丁真外出和动物朋友玩耍, 让肺部流进新鲜空气","../static/img/雪豹.jpeg",[-1, 0],[1,2],[1,2])}
+  card_phone(){return new Card_Phone("玩手机","丁真使用5G上网","../static/img/玩手机.jpg",[1],[1,2],[0],[-10,0])}
   card_event(){return new Card_Event("随机事件","不知道今天的电子烟是什么口味的, 说不定会出现更好的事情","../static/img/丁真疑惑.jpg")}
   card_yiyan(){return new Card_Yiyan("义眼","丁真使用义眼鉴定, 说不定能获得一些金币","../static/img/义眼2.jpg",[0],[-2])}
   
@@ -333,9 +350,12 @@ class Game_Manager {
   card_agent (){return new Card_Agent("成为锐刻5代言人","丁真向传统派发起挑战, 抽电子烟不再花费金钱","../static/img/锐刻代言人.png")}
   
   normalCards (){
-    var cards = [this.card_event(),this.card_yiyan(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_smoke(), this.card_listen_music(), this.card_play()]
-    if(Math.random()<0.7){
+    var cards = [this.card_event(),this.card_phone(),this.card_learn(),this.card_ride(), this.card_smoke(), this.card_listen_music(), this.card_play()]
+    if(Math.random()<0.8){
       cards.push(this.card_sleep())
+    }
+    if(this.player.knowledge >= 10){
+      cards.push(this.card_yiyan())
     }
     return cards
   }
