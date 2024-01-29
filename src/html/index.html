@@ -335,7 +335,7 @@
         }
         /* 出卡成功 */
         this.hover_card(null);
-        this.print(`[行动${this.player.action_count.val + 1}]\n` +
+        this.print(`[行动${this.player.action_count.max - this.player.action_count.val}]\n` +
                    `使用[${this.player.card_group[idx].name}] ${res.txt}`);
         /* 判断游戏结束 */
         if (this.player.is_game_over()) {
