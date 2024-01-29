@@ -302,8 +302,9 @@
 
       /* 卡牌效益的箭头 */
       card_effect_style(effect) {
-        return effect > 0 ? 'card-effect-bkgd-up' :
-               effect < 0 ? 'card-effect-bkgd-down' : 'card-effect-bkgd-none'
+        return effect > 0 ? 'card-effect-bkgd-up'   :
+               effect < 0 ? 'card-effect-bkgd-down' :
+                            'card-effect-bkgd-none'
       },
       
       /* 数字转字符串，带有符号 */
@@ -318,14 +319,16 @@
             this.game_over();
             return;
         }
-        /* 选卡模式，继承到下一回合 */
+        /* 选择一张卡继承到下一回合 */
         if (this.click_card_status.val == this.click_card_status.enum.keep) {
           this.next_round(idx);
           return;
         }
-        /* else 出卡模式 */
+        /* else this.click_card_status.val == this.click_card_status.enum.use */
+
+        /* 出卡 */
         let card = this.player.card_group[idx];
-        let res = this.player.use_card(idx);  /* 出卡 */
+        let res = this.player.use_card(idx);
         if (false == res.val) {
           this.print(`无法使用 [${card.name}] ${res.txt}`);
           return;
@@ -344,8 +347,6 @@
             this.print(str_action_count + `使用[${card.name}] 获得[${new_card.name}]`);
           }
         }
-
-
 
         /* 判断游戏结束 */
         if (this.player.is_game_over()) {
@@ -372,7 +373,7 @@
             return;
           }
 
-          /* 变成留卡模式 */
+          /* 选择一张卡继承到下一回合 */
           this.click_card_status.val = this.click_card_status.enum.keep;
           this.print("明天再继续努力吧，选择一张未使用过的卡以继承到明天（再次点击则不继承卡）");
         }
@@ -385,9 +386,9 @@
             this.print(res.txt);
             return;
           }
-          
+
           this.click_card_status.val = this.click_card_status.enum.use;
-          this.print(`\n[第${this.player.round_count}天]\n` + res.txt)
+          this.print(`\n[剩余${this.player.round_count}天]\n` + res.txt);
         }
       },
 
