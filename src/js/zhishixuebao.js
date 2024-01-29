@@ -984,22 +984,27 @@ constructor() {
     }
 
     if (this.status.energy.val + this.status.mood.val <= 3) {
+      this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "身心俱疲");
       return true;
     }
     else if (this.status.energy.val == 0) {
+      this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "体力不支");
       return true;
     }
     else if (this.status.mood.val == 0) {
+      this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "心情抑郁");
       return true;
     }
     else if (this.status.money.val <= 3) {
+      this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "穷困潦倒");
       return true;
     }
     else if (this.action_count <= 0) {
+      this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "时间耗尽");
       return true;
     }
