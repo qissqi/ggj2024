@@ -101,7 +101,7 @@
               </select>
 
               <hr>
-              <span>设置字体大小</span>
+              <span style="color: chocolate">设置字体大小</span>
               <select @change="set_font_size()" v-model="font_size">
                 <option v-for="sz in 8" :value="((sz * 2) + 8) + 'px'"> {{sz * 2 + 8}} </option>
               </select>
