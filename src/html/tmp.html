@@ -96,8 +96,8 @@
             <div id="options-panel">
               
               <span>选歌</span>
-              <select @change="select_music()" style="width: 70%;">
-                <option v-for="music in [{name: '无'}]" :value="music"> {{ music.name }} </option>
+              <select @change="select_music()" v-model="selected_music_idx" style="width: 70%;">
+                <option v-for="(music, idx) in music_player.music_list" :value="idx"> {{ music.name }} </option>
               </select>
 
               <hr>
@@ -181,7 +181,7 @@
     data() {
       return {
         character_portrait: {
-          url: "../static/img/直播1.png"
+          url: "../static/img/高考必胜.png"
         },
         output: {
           text_area: null,
@@ -189,6 +189,8 @@
           text_list: [],
         },
         font_size: '16px',
+        music_player: new Music_Player(),
+        selected_music_idx: 0,
 
         player: new Player(),
         hover_card_effect: {
@@ -239,7 +241,7 @@
 
       /* 选择播放音乐 */
       select_music() {
-        this.print("播放音乐");
+        this.music_player.play(this.selected_music_idx);
       },
 
       /* 设置字体大小 */

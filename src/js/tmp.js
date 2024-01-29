@@ -283,7 +283,6 @@ class Card_Random_Event extends Card {
   /* 执行随机事件
   */
   constructor() {
-    debugger
     super();
     this.name = "？";
     this.img_url = "../static/img/问号.png";
@@ -928,5 +927,49 @@ class Player {
     }
 
     return false;
+  }
+}
+
+class Music_Player {
+  constructor() {
+    this.audio = new Audio();
+    this.music_list = [
+      {
+        name :"无",
+        url  :"../static/audio/xbbz.mp3"
+      }, {
+        name :"Zood",
+        url  :"../static/audio/zood.mp3"
+      }, {
+        name :"I Got Smoke",
+        url  :"../static/audio/IGS.mp3"
+      }, {
+        name :"烟distance",
+        url  :"../static/audio/Ydistance.mp3"
+      }, {
+        name :"肺痒痒",
+        url  :"../static/audio/肺痒痒.mp3"
+      }, {
+        name :"Da Da Da",
+        url  :"../static/audio/DaDaDa.mp3"
+      }, {
+        name :"重开吸",
+        url  :"../static/audio/重开吸.mp3"
+      }, {
+        name :"回笼马",
+        url  :"../static/audio/回笼马.mp3"
+      }, {
+        name :"1！5！之名",
+        url  :"../static/audio/1！5！之名.mp3"
+      }, {
+        name :"烟弹如梦",
+        url  :"../static/audio/烟弹如梦.mp3"
+      },
+    ];
+  }
+
+  play(music_idx) {
+    this.audio.src = this.music_list[music_idx].url;
+    this.audio.play();
   }
 }
