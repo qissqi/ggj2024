@@ -77,7 +77,7 @@ class Card_Random_Learn extends Card {
       money:     Util.get_random_item([-2, -1, -1, -1]),
       health:    0,
     };
-    this.description = "万般皆下品，唯有读书高";
+    this.description = "万般皆下品，唯有什么来着";
   }
 
   use_event(player) {
@@ -86,11 +86,11 @@ class Card_Random_Learn extends Card {
 
       player.status.knowledge.val += this.effect.knowledge;
       player.last_learning = player.round_count;
-      this.description = "学到啦";
+      this.description = "唯有读书高, 知识学爆！";
     }
     else {
       this.effect.knowledge = 0;
-      this.description = "什么也没学到";
+      this.description = Util.get_random_item(["唯有理塘王","唯有灰太狼","唯有锐刻高"])
     }
 
     return this.description;
@@ -112,7 +112,7 @@ class Card_Listen_To_Music extends Card {
       money:     Util.get_random_int(-3, -1),
       health:    0,
     };
-    this.description = "欣赏音乐，放松心情";
+    this.description = "丁真正在欣赏理塘金曲";
   }
 
   use_event(player) {
@@ -160,7 +160,10 @@ class Card_Play_Phone extends Card {
       var r = Util.get_random_int(0,player.webs.length-1)
       var web = player.webs[r]
       player.webs.splice(r,1)
-      window.open(web, '_blank')
+      if(web.description){
+        this.description = web.description
+      }
+      window.open(web.url, '_blank')
     }
 
     return this.description;
@@ -192,7 +195,7 @@ class Card_Sleep extends Card {
         && Util.get_random_int(0, 1) == 0
     ) {
       this.effect.energy = player.status.energy.max;
-      this.description = "因为太累睡昏过去了，睡了两天睡饱啦";
+      this.description = "丁真太累了，要睡回笼觉，回笼了两天睡饱了";
       player.status.energy.val = player.status.energy.max;
       player.action_count.val  = 0;
       player.round_count      -= 1;
@@ -275,6 +278,13 @@ class Card_Riding extends Card {
     else if(Util.get_random_int(1, 6) <= 3){
       player.character_portrait.url = "../static/img/大力王2.gif"
       this.description = "骑着小马外出，遇到了好友大力王";
+    }else{
+      this.description = "骑着小马外出，把路过的kunkun撞倒了";
+      player.character_portrait.url = "../static/img/kun.gif"
+      if(!player.audioPlayer.music_mute && player.audioPlayer.audioPlayer.paused)
+      {
+        player.audioPlayer.playUrl("../static/audio/kun.mp3")
+      }
     }
     return this.description;
   }
@@ -325,7 +335,7 @@ class Card_Learn_A_Lot extends Card {
       money:     0,
       health:    0,
     };
-    this.description = "轻轻松松学到了知识";
+    this.description = "雪豹托梦给丁真，教他10以内的加减法，轻轻松松学到了知识";
   }
 
   use_event(player) {
@@ -348,7 +358,7 @@ class Card_Learned_Live extends Card {
       money:     0,
       health:    0,
     };
-    this.description = "以后可以开直播赚大钱咯";
+    this.description = "以后可以开直播赚大米咯";
   }
 
   use_event(player) {
@@ -373,7 +383,7 @@ class Card_Live extends Card {
       money:     Util.get_random_int(4, 12),
       health:    0,
     };
-    this.description = "开直播赚大钱";
+    this.description = "丁真在直播间教大家说藏话";
   }
 }
 
@@ -391,7 +401,7 @@ class Card_Be_RELX_V_Brand_Ambassador extends Card {
       money:     Util.get_random_int(10, 30),
       health:    0,
     };
-    this.description = "花更少钱抽电子烟";
+    this.description = "成为锐刻5代言人，可以享受优惠，花更少钱抽电子烟";
   }
 
   use_event(player) {
@@ -444,7 +454,7 @@ class Card_Album extends Card {
       money:     Util.get_random_int(4, 12),
       health:    0,
     };
-    this.description = "发专辑赚大钱";
+    this.description = "发专辑赚大钱, 听歌时还能听到新的金曲";
   }
 
   use_event(player) {
@@ -506,7 +516,7 @@ class Card_Speech extends Card {
   */
   constructor() {
     super();
-    this.name = "演讲";
+    this.name = "粘合国演讲";
     this.img_url = "../static/img/联合国演讲.png";
     this.effect = {
       knowledge: 0,
@@ -515,7 +525,7 @@ class Card_Speech extends Card {
       money:     Util.get_random_int(20, 60),
       health:    0,
     };
-    this.description = "《我和我的高原朋友》";
+    this.description = "《我和我的动物朋友》";
   }
 }
 
@@ -635,6 +645,11 @@ class AudioPlayer {
       {name:"I Got Smoke",url:"../static/audio/IGS.mp3"},
       {name:"烟distance",url:"../static/audio/Ydistance.mp3"},
       {name:"肺痒痒",url:"../static/audio/FYY.mp3"},
+      {name:"回笼马",url:"../static/audio/回笼马.mp3"},
+      {name:"烟弹如梦",url:"../static/audio/烟弹如梦.mp3"},
+      {name:"重开吸",url:"../static/audio/重开吸.mp3"},
+      {name:"DaDaDa",url:"../static/audio/DaDaDa.mp3"},
+      {name:"1！5！之名",url:"../static/audio/1！5！之名.mp3"},
     ]
   }
 
@@ -703,10 +718,10 @@ constructor() {
       this.audioPlayer.stop()
     this.audioPlayer = new AudioPlayer()
     this.webs = [
-      "https://www.bilibili.com/video/BV1GJ411x7h7",
-      "https://space.bilibili.com/1265680561",
-      "https://www.bilibili.com/video/BV1nY411N7HZ",
-      "https://ys.mihoyo.com/main/",
+      {url:"https://www.bilibili.com/video/BV1nY411N7HZ",description:"关注szdxdxdx, 关注素质低下地下洞穴 谢谢喵"},
+      {url:"https://www.bilibili.com/video/BV1GJ411x7h7"},
+      {url:"https://space.bilibili.com/1265680561"},
+      {url:"https://ys.mihoyo.com/main/"},
     ]
 
     let status_val_add = (status, to_add) => {
@@ -923,9 +938,9 @@ constructor() {
     this.update_card_usage_status();
 
     let return_text = "新的一天开始了，今天要好好努力" +
-      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空, 知识减少 "+random_punishment.knowledge : "") +
-      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了, 心情降低 "+random_punishment.mood : "") + 
-      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢, 体力减少 "+random_punishment.energy : "");
+      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空, 知识 "+random_punishment.knowledge : "") +
+      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了, 心情 "+random_punishment.mood : "") + 
+      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢, 体力 "+random_punishment.energy : "");
 
     //根据状态切换角色图片
     if(this.status.energy.val<5 || this.status.mood.val<5){
