@@ -1018,7 +1018,7 @@ constructor() {
       this.set_game_outcome(false, "穷困潦倒");
       return true;
     }
-    else if (this.action_count <= 0) {
+    else if (this.round_count <= 0) {
       this.character_portrait.url="../static/img/寄.png"
       this.set_game_outcome(false, "时间耗尽");
       return true;
