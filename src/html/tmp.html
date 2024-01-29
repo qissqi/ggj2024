@@ -323,17 +323,29 @@
           return;
         }
         /* else 出卡模式 */
-        /* 出卡 */
-        let card_name = this.player.card_group[idx].name;
-        let res = this.player.use_card(idx);
+        let card = this.player.card_group[idx];
+        let res = this.player.use_card(idx);  /* 出卡 */
         if (false == res.val) {
-          this.print(`无法使用 [${card_name}] ${res.txt}`);
+          this.print(`无法使用 [${card.name}] ${res.txt}`);
           return;
         }
-        /* 出卡成功 */
         this.hover_card(null);
-        this.print(`[行动${this.player.action_count.val + 1}]\n` +
-                   `使用[${card_name}] ${res.txt}`);
+
+        /* 输出 */
+        let str_action_count = `[行动${this.player.action_count.val + 1}]\n`;
+        if ( ! card.status.random.is_random) {
+          this.print(str_action_count + `使用[${card.name}] ${res.txt}`);
+        } else {
+          let new_card = this.player.card_group[idx];
+          if (new_card.status.random.can_be_force_use) {
+            this.print(str_action_count + `使用[${new_card.name}] ${res.txt}`);
+          } else {
+            this.print(str_action_count + `使用[${card.name}] 获得[${new_card.name}]`);
+          }
+        }
+
+
+
         /* 判断游戏结束 */
         if (this.player.is_game_over()) {
             this.game_over();
@@ -374,7 +386,7 @@
           }
           
           this.click_card_status.val = this.click_card_status.enum.use;
-          this.print(`[第${this.player.round_count}天]\n` + res.txt)
+          this.print(`\n[第${this.player.round_count}天]\n` + res.txt)
         }
       },
 

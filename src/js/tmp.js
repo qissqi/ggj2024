@@ -90,7 +90,7 @@ class Card_Random_Learn extends Card {
       knowledge: null,
       mood:      Util.get_random_item([-2, -1, -1, -1]),
       energy:    Util.get_random_item([-2, -1, -1, -1]),
-      money:     Util.get_random_item([-2, -1, -1, -1]),
+      money:     Util.get_random_item([-2, -1, -1, -1, 0]),
       health:    0,
     };
     this.description = "万般皆下品，唯有读书高";
@@ -134,7 +134,6 @@ class Card_Listen_To_Music extends Card {
 
 class Card_Play_Phone extends Card {
   /* 网上冲浪可能让心情变得舒畅，可能恢复体力
-     网络世界的新鲜事物很多，可能会有新机遇找上门来哦
   */
   constructor() {
     super();
@@ -189,7 +188,6 @@ class Card_Sleep extends Card {
   }
 
   use_event(player) {
-    debugger
     /* 在（卡片生效前）体力值较低时，回合的首要行动是睡觉，小概率会花费两天的时间恢复所有体力 */
     if (   player.action_count.val == player.action_count.max - 1
         && player.status.energy.val - this.effect.energy <= Util.get_random_item([0, 1, 1, 2])
@@ -313,7 +311,7 @@ class Card_Random_Event extends Card {
       return player.force_use_card(new_card).txt;
     }
     else {
-      return `获得[${new_card.name}]`;
+      return new_card.name;
     }
   }
 }
@@ -838,7 +836,7 @@ class Player {
     }
 
     /* 更新卡组 */
-    if (this.card_group[0].status.usage.is_usable) {
+    if (this.card_group[0].status.usage.is_used) {
       this.card_group[0] = Card_Factory.get_learn_card();
     }
     for (let i = 1; i < this.card_group.length; i++) {
@@ -846,7 +844,7 @@ class Player {
         this.card_group[i] = Card_Factory.get_card();
       }
     }
-    if (this.card_group[0].status.usage.is_usable) {
+    if (this.card_group[0].status.usage.is_used) {
       this.card_group[0].create_event(this);
     }
     for (let i = 1; i < this.card_group.length; i++) {
