@@ -708,6 +708,12 @@ class AudioPlayer {
 }
 
 class Player {
+  webs = [
+    {url:"https://www.bilibili.com/video/BV1nY411N7HZ",description:"关注szdxdxdx, 关注素质低下地下洞穴 谢谢喵"},
+    {url:"https://www.bilibili.com/video/BV1GJ411x7h7"},
+    {url:"https://space.bilibili.com/1265680561"},
+    {url:"https://ys.mihoyo.com/main/"},
+  ]
 constructor() {
     this.reset();
   }
@@ -717,12 +723,6 @@ constructor() {
     if(this.audioPlayer)
       this.audioPlayer.stop()
     this.audioPlayer = new AudioPlayer()
-    this.webs = [
-      {url:"https://www.bilibili.com/video/BV1nY411N7HZ",description:"关注szdxdxdx, 关注素质低下地下洞穴 谢谢喵"},
-      {url:"https://www.bilibili.com/video/BV1GJ411x7h7"},
-      {url:"https://space.bilibili.com/1265680561"},
-      {url:"https://ys.mihoyo.com/main/"},
-    ]
 
     let status_val_add = (status, to_add) => {
       status.val = Math.max(0, Math.min(status.max, status.val + to_add));
