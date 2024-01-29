@@ -803,12 +803,12 @@ class Player {
     /* 如果行动数未耗尽就结束本回合，会随机减少心情和体力以示惩罚 */
     let random_punishment = { knowledge: 0, mood: 0, energy: 0 }
     if (this.action_count.val == 1) {
-      random_punishment.mood   = Util.get_random_item([-1, -1, 0, 0, 0]);
-      random_punishment.energy = Util.get_random_item([-1, -1, 0, 0, 0]);
+      random_punishment.mood   = Util.get_random_item([-1, -1, 0, 0, 0, 0, 0]);
+      random_punishment.energy = Util.get_random_item([-1, -1, 0, 0, 0, 0, 0]);
     }
     else if (this.action_count.val > 1) {
-      random_punishment.mood   = Util.get_random_item([-2, -1, -1, 0, 0]);
-      random_punishment.energy = Util.get_random_item([-1, -1, -1, 0, 0]);
+      random_punishment.mood   = Util.get_random_item([-2, -1, -1, 0, 0, 0]);
+      random_punishment.energy = Util.get_random_item([-2, -1, -1, 0, 0, 0]);
     }
     /* 如果太久不学习，会随机减少知识以示惩罚 */
     if (this.last_learning - this.round_count >= Util.get_random_item([3, 4, 4, 4, 5])) {
@@ -837,7 +837,7 @@ class Player {
       }
     }
 
-    /* 创建卡 */
+    /* 更新卡组 */
     if (this.card_group[0].status.usage.is_usable) {
       this.card_group[0] = Card_Factory.get_learn_card();
     }
@@ -859,9 +859,9 @@ class Player {
     this.update_card_usage_status();
 
     let return_text = "新的一天开始了，今天要好好努力" +
-      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空" : "") +
-      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了" : "") + 
-      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢" : "");
+      (random_punishment.knowledge < 0 ? `\n太久没学习了，感觉脑袋变空空（知识${random_punishment.knowledge}）` : "") +
+      (random_punishment.mood      < 0 ? `\n昨天没有足够努力，今天心情变差了（心情${random_punishment.mood}）` : "") + 
+      (random_punishment.energy    < 0 ? `\n昨天没有足够努力，今天也变得没什么动力呢（体力${random_punishment.energy}）` : "");
 
     return new ValTxt(true, return_text);
   }
