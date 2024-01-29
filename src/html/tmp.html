@@ -101,7 +101,7 @@
               </select>
 
               <hr>
-              <span>设置字体大小</span>
+              <span style="color: chocolate">设置字体大小</span>
               <select @change="set_font_size()" v-model="font_size">
                 <option v-for="sz in 8" :value="((sz * 2) + 8) + 'px'"> {{sz * 2 + 8}} </option>
               </select>
@@ -124,10 +124,10 @@
         <div v-for="(card, idx) in player.card_group" @click="click_card(idx)"
           @mouseenter="hover_card(card)" @mouseleave="hover_card(null)"
           :class="['card',
-            card.usage_status & Card_USAGE_STATUS.random ? 'is-random-card' : '',
+            card.status.random.is_random || card.status.random.is_from_random ? 'is-random-card' : '',
 
-               (click_card_status.val == click_card_status.enum.use  && (card.usage_status & Card_USAGE_STATUS.usable))
-            || (click_card_status.val == click_card_status.enum.keep && !(card.usage_status & Card_USAGE_STATUS.used) && idx != 0)
+               (click_card_status.val == click_card_status.enum.use  && card.status.usage.is_usable)
+            || (click_card_status.val == click_card_status.enum.keep && !card.status.usage.is_used && idx != 0)
             ? 'is-card-usable' : 'is-card-unusable']">
           <div class="card-face-div">
             <img class="card-img" :src="card.img_url" draggable="false">
@@ -135,13 +135,11 @@
             <div class="card-corner">
               <span>
                 {{
-                  card.usage_status & Card_USAGE_STATUS.used           ? "已使用" :
-
+                  card.status.usage.is_used                           ? "已使用" :
                   click_card_status.val == click_card_status.enum.use
-                  && !(card.usage_status & Card_USAGE_STATUS.usable)   ? "不可用" :
-
+                  && !card.status.usage.is_usable                     ? "不可用" :
                   click_card_status.val == click_card_status.enum.keep
-                  && idx == 0                                          ? "无须继承" : ""
+                  && idx == 0                                         ? "无须继承" : ""
                 }}
               </span>
             </div>
@@ -193,7 +191,6 @@
         font_size: '16px',
 
         player: new Player(),
-        Card_USAGE_STATUS: Card.USAGE_STATUS,
         hover_card_effect: {
           knowledge: 0,
           mood     : 0,
@@ -274,8 +271,8 @@
           return;
         }
 
-        if ((this.click_card_status.val == this.click_card_status.enum.use  && card.usage_status & this.Card_USAGE_STATUS.usable)
-         || (this.click_card_status.val == this.click_card_status.enum.keep && !(card.usage_status & this.Card_USAGE_STATUS.used)))
+        if ((this.click_card_status.val == this.click_card_status.enum.use  && card.status.usage.is_usable)
+         || (this.click_card_status.val == this.click_card_status.enum.keep && !card.status.usage.is_used))
         {
           this.hover_card_effect.knowledge = card.effect.knowledge;
           this.hover_card_effect.mood      = card.effect.mood     ;
@@ -327,15 +324,16 @@
         }
         /* else 出卡模式 */
         /* 出卡 */
+        let card_name = this.player.card_group[idx].name;
         let res = this.player.use_card(idx);
         if (false == res.val) {
-          this.print(`无法使用 [${this.player.card_group[idx].name}] ${res.txt}`);
+          this.print(`无法使用 [${card_name}] ${res.txt}`);
           return;
         }
         /* 出卡成功 */
         this.hover_card(null);
         this.print(`[行动${this.player.action_count.val + 1}]\n` +
-                   `使用[${this.player.card_group[idx].name}] ${res.txt}`);
+                   `使用[${card_name}] ${res.txt}`);
         /* 判断游戏结束 */
         if (this.player.is_game_over()) {
             this.game_over();

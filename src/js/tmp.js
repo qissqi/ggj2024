@@ -20,22 +20,38 @@ class Card {
       money:     null,
       health:    null,
     };
-    this.description   = "";
-    this.usage_status  = Card.USAGE_STATUS.usable;
+    this.description = "";
+    this.status = {
+      usage: {
+        is_usable : true, /* 应保证：如果 is_used 是 ture，is_usable 一定是 false */
+        is_used   : false,
+      },
+      random: {
+        is_random        : false, /* 本卡是随机卡（只有随机卡的构造函数中赋值 true） */
+        is_from_random   : false, /* 本卡是随机卡生成的卡（在随机卡的 use_event() 中，会给生成的卡的该属性赋值 true） */
+        can_be_force_use : true   /* 如果随机卡生成本卡则强制执行 use_event() */
+      }
+    }
   }
 
-  /* 判断用与，赋一用或，置零与非 */
+  /* 这是之前的设计
   static USAGE_STATUS = {
-    usable:   0b001,
-    used:     0b010,
-    random:   0b100,
+    usable           : 0b00001, // 判断用与，赋一用或，置零与非
+    used             : 0b00010,
+    random           : 0b00100,
+    is_from_random   : 0b01000,
+    can_be_force_use : 0b10000,
   }
+  */
 
-  /* 虚函数， */
-  update_event(player) { }
+  /* 虚函数，创建卡后，执行回调 */
+  create_event(player) { }
 
-  /* 虚函数，使用卡牌后执行的回调（要求返回文本，以示生效的结果） */
+  /* 虚函数，使用卡时，执行回调（要求返回文本，以示生效的结果） */
   use_event(player) { return this.description; }
+
+  /* 虚函数，每回合开始前，和每次用卡后，执行回调 */
+  update_event(player) { }
 }
 
 class Card_Learn extends Card {
@@ -108,16 +124,12 @@ class Card_Listen_To_Music extends Card {
     this.effect = {
       knowledge: 0,
       mood:      Util.get_random_item([2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4]),
-      energy:    Util.get_random_item([0, 0, 0, 0, 0, 0, 1, 2]),
+      energy:    Util.get_random_item([0, 1, 2]),
       money:     Util.get_random_int(-3, -1),
       health:    0,
     };
     this.description = "欣赏音乐，放松心情";
   }
-
-  use_event(player) {
-    /* 在这里调用音乐播放器 */
-  };
 }
 
 class Card_Play_Phone extends Card {
@@ -169,7 +181,7 @@ class Card_Sleep extends Card {
     this.effect = {
       knowledge: 0,
       mood:      Util.get_random_item([0, 0, 0, 0, 0, 0, 1, 2]),
-      energy:    Util.get_random_item([2, 3, 3, 3, 3, 3, 4, 4, 4]),
+      energy:    Util.get_random_item([2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5]),
       money:     0,
       health:    Util.get_random_int(0, 10) == 0 ? 1 : 0,
     };
@@ -180,7 +192,7 @@ class Card_Sleep extends Card {
     debugger
     /* 在（卡片生效前）体力值较低时，回合的首要行动是睡觉，小概率会花费两天的时间恢复所有体力 */
     if (   player.action_count.val == player.action_count.max - 1
-        && player.status.energy.val - this.effect.energy <= Util.get_random_item([1, 1, 1, 1, 1, 2])
+        && player.status.energy.val - this.effect.energy <= Util.get_random_item([0, 1, 1, 2])
         && Util.get_random_int(0, 1) == 0
     ) {
       this.effect.energy = player.status.energy.max;
@@ -204,15 +216,16 @@ class Card_Smoke extends Card {
     this.img_url = "../static/img/电子烟.png";
     this.effect = {
       knowledge: 0,
-      mood:      Util.get_random_item([3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7]),
-      energy:    Util.get_random_item([3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 7]),
+      mood:      Util.get_random_item([3, 4, 4, 5, 5, 6, 6, 6, 7]),
+      energy:    Util.get_random_item([3, 4, 4, 5, 5, 6, 6, 6, 7]),
       money:     Util.get_random_int(-30, -15),
       health:    Util.get_random_item([-5, -5, -5, -5, -4, -4, -4, -4, -4, -3]),
     };
     this.description = "芜湖芜湖真的好满足";
+    this.status.random.can_be_force_use = false;
   }
 
-  update_event(player) {
+  create_event(player) {
     if (player.achievement.is_RELX_V_brand_ambassador) {
       /* 品牌大使的优惠 */
       this.effect.money = Math.trunc(this.effect.money / 3 * 2);
@@ -231,7 +244,7 @@ class Card_Play_With_Snow_Leopard extends Card {
     this.effect = {
       knowledge: 0,
       mood:      Util.get_random_item([1, 1, 1, 1, 2, 2, 3]),
-      energy:    Util.get_random_int(-2, 0),
+      energy:    Util.get_random_item([-2, -1, -1, 0, 0, 0]),
       money:     0,
       health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
@@ -250,7 +263,7 @@ class Card_Riding extends Card {
     this.effect = {
       knowledge: 0,
       mood:      Util.get_random_item([1, 1, 1, 1, 1, 1, 2, 3]),
-      energy:    Util.get_random_int(-2, 0),
+      energy:    Util.get_random_item([-2, -1, -1, 0, 0, 0]),
       money:     0,
       health:    Util.get_random_int(0, 5) == 0 ? 1 : 0,
     };
@@ -272,6 +285,7 @@ class Card_Random_Event extends Card {
   /* 执行随机事件
   */
   constructor() {
+    debugger
     super();
     this.name = "？";
     this.img_url = "../static/img/问号.png";
@@ -283,7 +297,7 @@ class Card_Random_Event extends Card {
       health:    null,
     };
     this.description = "？";
-    this.usage_status |= Card.USAGE_STATUS.random;
+    this.status.random.is_random = true;
   }
 
   use_event(player) {
@@ -292,10 +306,15 @@ class Card_Random_Event extends Card {
         ? Card_Factory.get_special_card() /* 有一定概率变为特殊卡，触发特殊事件 */
         : Card_Factory.get_random_card();
 
-    new_card.usage_status |= Card.USAGE_STATUS.random;
+    new_card.status.random.is_from_random = true;
     player.card_group[self_idx] = new_card;
 
-    return player.force_use_card(new_card).txt;
+    if (new_card.status.random.can_be_force_use) {
+      return player.force_use_card(new_card).txt;
+    }
+    else {
+      return `获得[${new_card.name}]`;
+    }
   }
 }
 
@@ -465,14 +484,19 @@ class Card_Botanist extends Card {
       knowledge: 0,
       mood:      null,
       energy:    null,
-      money:     -1,
+      money:     Util.get_random_int(-6, -4),
       health:    0,
     };
     this.description = "互换心情值和体力值";
+    this.status.random.can_be_force_use = false;
   }
 
   use_event(player) {
-    /* 使用 add 可以防止值溢出（虽然设计上心情值和体力值的上限是一样） */
+    /* 每过一回合，本卡价格都会涨一点 */
+    this.effect.money += Util.get_random_item([-4, -3, -2, -2]);
+
+    /* 互换心情值和体力值 
+      （使用 add 可以防止值溢出，虽然设计上心情值和体力值的上限是一样） */
     let mood_val   = player.status.mood  .val;
     let energy_val = player.status.energy.val;
     player.status.mood  .val = 0;
@@ -480,6 +504,14 @@ class Card_Botanist extends Card {
     player.status.mood  .add(energy_val);
     player.status.energy.add(mood_val);
     return "互换心情值和体力值";
+  }
+
+  update_event(player) {
+    /* 每一次行动，不管出什么卡，本卡价格都会涨一点 */
+    this.effect.money += Util.get_random_item([-2, -1, -1]);
+
+    /* 恢复使用情况 */
+    this.status.usage.is_used = false;
   }
 }
 
@@ -502,7 +534,6 @@ class Card_Speech extends Card {
 }
 
 class Card_Factory {
-  /* 普通卡 */
   static normal_card_class_list  = [];
   static random_card_class_list  = [];
   static special_card_class_list = [];
@@ -530,6 +561,7 @@ class Card_Factory {
       Card_Sleep,
       Card_Play_With_Snow_Leopard,
       Card_Riding,
+      Card_Smoke,
     ];
 
     /* 特殊卡（由随机事件卡开出） */
@@ -559,7 +591,7 @@ class Card_Factory {
   static get_random_card() {
     return new (Util.get_random_item(Card_Factory.random_card_class_list))();
   }
-  
+
   /* 获取一张特殊卡 */
   static get_special_card() {
     return new (Util.get_random_item(Card_Factory.special_card_class_list))();
@@ -608,7 +640,7 @@ class Player {
     let status_val_add = (status, to_add) => {
       status.val = Math.max(0, Math.min(status.max, status.val + to_add));
     }
-    
+
     /* 重置状态 */
     this.round_count  = 100;
     this.action_count = { val: 4, max: 4 };
@@ -640,27 +672,25 @@ class Player {
     this.card_group.push(Card_Factory.get_card());
     this.card_group.push(Card_Factory.get_card());
     this.card_group.push(Card_Factory.get_card());
+    for (let i = 0; i < this.card_group.length; i++) {
+      this.card_group[i].create_event(this);
+    }
     this.update_card_usage_status();
   }
 
   /* 用于更新卡状态（每次用卡后调用）*/
   update_card_usage_status() {
+
+    /* 先执行回调，先 */
     for (let i = 0; i < this.card_group.length; i++) {
       this.card_group[i].update_event(this);
     }
 
+    /* 更新没有使用过的卡的状态 */
     for (let i = 0; i < this.card_group.length; i++) {
       let card = this.card_group[i];
-
-      /* 未翻开的随机事件卡，和已用过的卡不更新状态 */
-      if (card.usage_status & Card.USAGE_STATUS.random) continue;
-      if (card.usage_status & Card.USAGE_STATUS.used)   continue;
-
-      /* 更新没有使用过的卡的状态 */
-      if (true == this.is_card_usable(card).val) {
-        card.usage_status |= Card.USAGE_STATUS.usable;
-      } else {
-        card.usage_status &= ~Card.USAGE_STATUS.usable;
+      if ( ! card.status.usage.is_used) {
+        card.status.usage.is_usable = this.is_card_usable(card).val;
       }
     }
   }
@@ -668,7 +698,7 @@ class Player {
   /* 判断卡是否可用（用卡前调用） return ValTxt(bool, ) */
   is_card_usable(card) {
     if (this.action_count.val <= 0)                      return new ValTxt(false, "行动数耗尽");
-    if (card.usage_status & Card.USAGE_STATUS.used)      return new ValTxt(false, "此卡已被使用过");
+    if (card.status.usage.is_used)                       return new ValTxt(false, "此卡已被使用过");
     if (this.status.mood  .val + card.effect.mood   < 0) return new ValTxt(false, "当前心情值不足");
     if (this.status.energy.val + card.effect.energy < 0) return new ValTxt(false, "当前体力值不足");
     if (this.status.money .val + card.effect.money  < 0) return new ValTxt(false, "当前资产值不足");
@@ -679,7 +709,7 @@ class Player {
   use_card(idx) {
     /* 判断游戏结束 */
     if (this.is_game_over()) {
-      return new ValTxt(false, "游戏已结束");
+      return new ValTxt(false, this.game_outcome.text);
     }
 
     /* 检测卡是否可用 */
@@ -702,12 +732,18 @@ class Player {
     /* 卡牌发挥特殊效果（在扣除行动数后执行，因为卡的效果有可能与行动数有关） */
     let result_text = card.use_event(this);
 
-    /* 更新卡的状态（在调用 use_event() 后执行
-      如果本卡是随机卡，那么执行use_event() 后，
-      可能会生成新的卡代替卡组中本卡的位置，所以需要重新获取引用） */
-    card = this.card_group[idx];
-    card.usage_status &= ~Card.USAGE_STATUS.usable;
-    card.usage_status |=  Card.USAGE_STATUS.used;
+    /* 更新卡的状态（一定要在调用 use_event() 后执行 */
+    if ( ! card.status.random.is_random) {
+      card.status.usage.is_used   = true;
+      card.status.usage.is_usable = false;
+    }
+    else {
+      card = this.card_group[idx]; /* 执行随机卡的 use_event() 后会生成新卡，需重新取引用 */
+      if (card.status.random.can_be_force_use) {
+        card.status.usage.is_used   = true;
+        card.status.usage.is_usable = false;
+      }
+    }
     this.update_card_usage_status();
 
     /* 判断游戏结束（在扣除行动数后执行，因为判断结局与行动数有关） */
@@ -721,7 +757,7 @@ class Player {
 
   /* 强制用卡 return ValTxt( true , )
      只能由特殊卡的 use_event() 调用
-     调用关系：use_card(card) -> card.use_event() -> force_use_card(another_card)
+     调用关系：use_card() -> random_event_card.use_event() -> force_use_card(another_card)
   */
   force_use_card(card) {
     /* 不判断游戏结束 */
@@ -759,7 +795,7 @@ class Player {
       if (0 == keep_card_idx) {
         return new ValTxt(false, "无须继承固定的学习卡");
       }
-      else if (this.card_group[keep_card_idx].usage_status & Card.USAGE_STATUS.used) {
+      else if (this.card_group[keep_card_idx].status.usage.is_used) {
         return new ValTxt(false, "无法继承已使用过的卡");
       }
     }
@@ -767,12 +803,12 @@ class Player {
     /* 如果行动数未耗尽就结束本回合，会随机减少心情和体力以示惩罚 */
     let random_punishment = { knowledge: 0, mood: 0, energy: 0 }
     if (this.action_count.val == 1) {
-      random_punishment.mood   = Util.get_random_item([-2, -1, -1, 0, 0]);
+      random_punishment.mood   = Util.get_random_item([-1, -1, 0, 0, 0]);
       random_punishment.energy = Util.get_random_item([-1, -1, 0, 0, 0]);
     }
     else if (this.action_count.val > 1) {
-      random_punishment.mood   = Util.get_random_item([-2, -2, -1, 0]);
-      random_punishment.energy = Util.get_random_item([-1, -1, 0, 0]);
+      random_punishment.mood   = Util.get_random_item([-2, -1, -1, 0, 0]);
+      random_punishment.energy = Util.get_random_item([-1, -1, -1, 0, 0]);
     }
     /* 如果太久不学习，会随机减少知识以示惩罚 */
     if (this.last_learning - this.round_count >= Util.get_random_item([3, 4, 4, 4, 5])) {
@@ -801,18 +837,25 @@ class Player {
       }
     }
 
-    console.log(Card_Factory.normal_card_class_list)
-
-    /* 重置学习卡 */
-    if (this.card_group[0].usage_status & Card.USAGE_STATUS.used) {
+    /* 创建卡 */
+    if (this.card_group[0].status.usage.is_usable) {
       this.card_group[0] = Card_Factory.get_learn_card();
     }
-    /* 重置其他卡 */
     for (let i = 1; i < this.card_group.length; i++) {
       if (keep_card_idx != i) {
         this.card_group[i] = Card_Factory.get_card();
       }
     }
+    if (this.card_group[0].status.usage.is_usable) {
+      this.card_group[0].create_event(this);
+    }
+    for (let i = 1; i < this.card_group.length; i++) {
+      if (keep_card_idx != i) {
+        this.card_group[i].create_event(this);
+      }
+    }
+
+    /* 更新状态 */
     this.update_card_usage_status();
 
     let return_text = "新的一天开始了，今天要好好努力" +
