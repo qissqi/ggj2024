@@ -117,6 +117,7 @@ class Card_Listen_To_Music extends Card {
 
   use_event(player) {
     player.audioPlayer.randomListen()
+    return this.description
   };
 }
 
@@ -268,8 +269,12 @@ class Card_Riding extends Card {
     if (Util.get_random_int(0, 6) <= 1) {
       this.effect.money = Util.get_random_int(1, 8);
       this.description = "骑着小马外出，幸运地捡到了金币";
-
+      
       player.status.money.add(this.effect.money);
+    }
+    else if(Util.get_random_int(1, 6) <= 3){
+      player.character_portrait.url = "../static/img/大力王2.gif"
+      this.description = "骑着小马外出，遇到了好友大力王";
     }
     return this.description;
   }
@@ -641,7 +646,7 @@ class AudioPlayer {
   }
 
   randomListen(){
-    if(this.music_mute){
+    if(this.music_mute || !this.audioPlayer.paused){
       return
     }
 
@@ -710,7 +715,7 @@ constructor() {
     
     /* 重置状态 */
     this.character_portrait= {
-      url: "../static/img/直播1.png"
+      url: "../static/dz_test.jpeg"
     }
     this.round_count  = 100;
     this.action_count = { val: 4, max: 4 };
@@ -918,9 +923,16 @@ constructor() {
     this.update_card_usage_status();
 
     let return_text = "新的一天开始了，今天要好好努力" +
-      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空" : "") +
-      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了" : "") + 
-      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢" : "");
+      (random_punishment.knowledge < 0 ? "\n太久没学习了，感觉脑袋变空空, 知识减少 "+random_punishment.knowledge : "") +
+      (random_punishment.mood      < 0 ? "\n昨天没有足够努力，今天心情变差了, 心情降低 "+random_punishment.mood : "") + 
+      (random_punishment.energy    < 0 ? "\n昨天没有足够努力，今天也变得没什么动力呢, 体力减少 "+random_punishment.energy : "");
+
+    //根据状态切换角色图片
+    if(this.status.energy.val<5 || this.status.mood.val<5){
+      this.character_portrait.url = "../static/img/丁真哭脸.png"
+    }else{
+      this.character_portrait.url = "../static/dz_test.jpeg"
+    }
 
     return new ValTxt(true, return_text);
   }
