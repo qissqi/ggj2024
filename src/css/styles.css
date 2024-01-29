@@ -24,8 +24,8 @@ body {
 #bottom-section                 { height: 45%; }
 #top-left-section               { width: 40%; }
 #top-right-section              { width: 60%; }
-#top-right-top-section          { height: 55%; display: flex; }
-#top-right-bottom-section       { height: 45%; display: flex; }
+#top-right-top-section          { height: 60%; display: flex; }
+#top-right-bottom-section       { height: 40%; display: flex; }
 #top-right-bottom-left-section  { width: 60%; }
 #top-right-bottom-right-section { width: 40%; }
 #top-section,
@@ -62,11 +62,13 @@ body {
 }
 
 .status-table    { width: 97%; }
-.status-table tr .status-emoji { width: 10%; }
-.status-table tr .status-name  { width: 15%; }
-.status-table tr .status-value { width: 20%; }
-.status-table tr .empty        { width: 10%; }
-.status-table tr .status-bar   { width: 55%; }
+.status-table tr .status-emoji     { width: 8%;  }
+.status-table tr .status-name      { width: 12%; }
+.status-table tr .status-value-val { width: 8%;  }
+.status-table tr .status-value-add { width: 8%;  }
+.status-table tr .status-value-max { width: 12%; }
+.status-table tr .status-bar       { width: 52%; }
+.status-table tr .empty            { width: 20%; }
 
 .status-table tr .status-bar .progress-bar {
   height: 13px;
@@ -75,6 +77,10 @@ body {
 .status-table tr span {
   color: #000;
   font-family: "黑体";
+}
+
+.status-table tr .status-value-add .warn {
+  color: #f00;
 }
 
 #options-panel {
@@ -153,12 +159,10 @@ body {
 
 #card-group .is-card-usable:hover {
   transform: translateY(-30px);
-  opacity: 0.9;
 }
 
 #card-group .is-card-unusable:hover {
   transform: translateY(-5px);
-  opacity: 0.9;
 }
 
 #card-group .card .card-face-div {
